@@ -6,13 +6,25 @@ import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandL
 import {cn} from "@/lib/utils";
 
 
-export default function RouteCombo({value, setValue}: {value: string, setValue: Dispatch<SetStateAction<string>>}) {
+export default function LocCombo({value, setValue}: {value: string, setValue: Dispatch<SetStateAction<string>>}) {
     const [open, setOpen] = useState(false);
 
-    const routes = [
+    const locations = [
         {
-            value: "microtech,hurston",
-            label: "Microtech -> Hurston",
+            value: "microtech",
+            label: "Microtech",
+        },
+        {
+            value: "arccorp",
+            label: "ArcCorp",
+        },
+        {
+            value: "hurston",
+            label: "Hurston",
+        },
+        {
+            value: "crusader",
+            label: "Crusader",
         },
     ]
 
@@ -26,18 +38,18 @@ export default function RouteCombo({value, setValue}: {value: string, setValue: 
                     className="w-[200px] justify-between"
                 >
                     {value
-                        ? routes.find((route) => route.value === value)?.label
-                        : "Select route..."}
+                        ? locations.find((route) => route.value === value)?.label
+                        : "Select location..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
                 <Command>
-                    <CommandInput placeholder="Search routes..." />
+                    <CommandInput placeholder="Search locations..." />
                     <CommandList>
-                        <CommandEmpty>No routes found.</CommandEmpty>
+                        <CommandEmpty>No locations found.</CommandEmpty>
                         <CommandGroup>
-                            {routes.map((route) => (
+                            {locations.map((route) => (
                                 <CommandItem
                                     key={route.value}
                                     value={route.value}
