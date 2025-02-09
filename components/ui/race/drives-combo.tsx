@@ -14,6 +14,10 @@ export default function DrivesCombo({value, setValue}: {value: string, setValue:
             value: "sparkfire",
             label: "Sparkfire",
         },
+        {
+            value: "torrent",
+            label: "Torrent",
+        },
     ]
 
     return (

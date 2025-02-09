@@ -29,7 +29,7 @@ export default function LocCombo({value, setValue}: {value: string, setValue: Di
     ]
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={setOpen} >
             <PopoverTrigger asChild>
                 <Button
                     variant="outline"
@@ -54,7 +54,7 @@ export default function LocCombo({value, setValue}: {value: string, setValue: Di
                                     key={route.value}
                                     value={route.value}
                                     onSelect={(currentValue) => {
-                                        setValue(currentValue === value ? "" : currentValue)
+                                        setValue(currentValue)
                                         setOpen(false)
                                     }}
                                 >

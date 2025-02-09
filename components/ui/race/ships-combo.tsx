@@ -15,8 +15,8 @@ export default function ShipsCombo({value, setValue}: {value: string, setValue: 
             label: "MISC Starlancer MAX",
         },
         {
-            value: "rsi_apollo",
-            label: "RSI Apollo",
+            value: "drake_corsair",
+            label: "Drake Corsair",
         },
     ]
 

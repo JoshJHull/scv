@@ -5,7 +5,7 @@ export default function Navbar() {
         <div className="hidden w-full md:block">
             <div className="flex grow flex-row bg-black">
                 <NavbarLinks/>
-                <div className={"flex grow bg-_dark-gray"}></div>
+                <div className={"flex grow bg-gray-600"}></div>
             </div>
         </div>
     );

@@ -33,9 +33,9 @@ export default function NavbarLinks() {
                         key={link.name}
                         href={link.href}
                         className={clsx(
-                            "flex h-[48px] grow items-center justify-center gap-2 bg-_dark-gray text-_white p-3 text-sm font-medium hover:bg-_light-gray  md:flex-none md:justify-start md:p-2 md:px-3",
+                            "flex h-[48px] grow items-center justify-center gap-2 bg-gray-600 text-white p-3 text-sm font-medium hover:bg-gray-400  md:flex-none md:justify-start md:p-2 md:px-3",
                             {
-                                "bg-_light-gray text-_white": pathname === link.href,
+                                "bg-gray-700 text-white": pathname === link.href,
                             }
                         )}
                     >
