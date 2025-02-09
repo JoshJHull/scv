@@ -2,7 +2,7 @@
 
 import {Canvas, useFrame} from "@react-three/fiber";
 import {Bounds, Line, Stars} from "@react-three/drei";
-import {RefObject, useEffect, useMemo, useRef, useState} from "react";
+import {Dispatch, RefObject, SetStateAction, useEffect, useMemo, useRef, useState} from "react";
 import {EllipseCurve, Mesh, Vector3} from "three";
 import {Button} from "@/components/ui/button";
 import ShipsCombo from "@/components/ui/race/ships-combo";
@@ -30,11 +30,25 @@ const driveSpeed = 0.171;
 const fuelUse = 0.016;
 const fuelCap = 3.6;
 
-const ShipRace = ({raceState, shipRef}:
-                   {raceState: raceStatus, shipRef: RefObject<Mesh>}) => {
+const ShipRace = ({raceState, setRaceState, shipRef, dest}:
+                   {raceState: raceStatus, setRaceState: Dispatch<SetStateAction<raceStatus>>, shipRef: RefObject<Mesh>, dest: Vector3}) => {
+    const destination = dest.clone();
+    destination.setY(destination.y + 1);
+    let forwardVector = new Vector3(0,0,0);
+    if(raceState === raceStatus.running) {
+
+    }
+    let speed = driveSpeed * 20;
     useFrame((_state, delta) => {
+        speed *= delta;
         if(raceState === raceStatus.running) {
-            shipRef.current.position.x += 0.5 * delta;
+            forwardVector = forwardVector.subVectors(destination, shipRef.current.position).normalize();
+            if(shipRef.current.position.equals(destination)) {
+                setRaceState(raceStatus.paused);
+            }
+            shipRef.current.position.x += forwardVector.x * speed;
+            shipRef.current.position.y += forwardVector.y * speed;
+            shipRef.current.position.z += forwardVector.z * speed;
         }
     });
 
@@ -72,18 +86,21 @@ export default function Race() {
                 <Canvas camera={{fov: 60, position:[0,80,0]}}>
                     <Objects ship1={shipObj1} ship2={shipObj2} />
                     <Stars fade speed={0} />
-                    <ShipRace raceState={raceState} shipRef={shipObj1}/>
+                    <ShipRace raceState={raceState} setRaceState={setRaceState} shipRef={shipObj1} dest={locations[dest]}/>
                 </Canvas>
             </div>
             <div className={"absolute flex w-full pt-5 pr-10 justify-end"}>
                 <div className={"flex flex-col space-y-5"}>
                     <div className={"flex space-x-4 justify-end"}>
                         <div>
-                            <Button onClick={() => setRaceState(raceStatus.running)} disabled={Boolean(raceState)}
+                            <Button onClick={() => {
+                                setRaceState(raceStatus.running)
+                                setOpenSetup(false)
+                            }} disabled={Boolean(raceState)}
                                           className={"text-white rounded-r-none bg-green-500 hover:text-white hover:bg-green-600"}>Start</Button>
-                            <Button onClick={() => setRaceState(raceStatus.paused)}
+                            <Button onClick={() => setRaceState(raceStatus.paused)} disabled={!Boolean(raceState)}
                                           className={"text-black rounded-none bg-white hover:text-black hover:bg-gray-200"}>Pause</Button>
-                            <Button onClick={() => setRaceState(raceStatus.stopped)}
+                            <Button onClick={() => setRaceState(raceStatus.stopped)} disabled={!Boolean(raceState)}
                                           className={"text-white rounded-l-none bg-red-500 hover:text-white hover:bg-red-600"}>Reset</Button>
                         </div>
                         <MotionButton whileHover={{scale: 1.1}} onClick={() => setOpenSetup(!openSetup)} disabled={Boolean(raceState)}
