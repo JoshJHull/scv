@@ -1,7 +1,7 @@
 "use client";
 
 import {Canvas, useFrame} from "@react-three/fiber";
-import {Bounds, Line, Stars} from "@react-three/drei";
+import {Bounds, Html, Line, Stars} from "@react-three/drei";
 import {Dispatch, RefObject, SetStateAction, useEffect, useMemo, useRef, useState} from "react";
 import {EllipseCurve, Mesh, Vector3} from "three";
 import {Button} from "@/components/ui/button";
@@ -10,6 +10,7 @@ import DrivesCombo from "@/components/ui/race/drives-combo";
 import LocCombo from "@/components/ui/race/loc-combo";
 import {Separator} from "@/components/ui/separator";
 import {AnimatePresence, motion} from "motion/react";
+import {Pause, Play, RotateCcw, Settings} from "lucide-react";
 
 const MotionButton = motion.create(Button);
 
@@ -35,12 +36,9 @@ const ShipRace = ({raceState, setRaceState, shipRef, dest}:
     const destination = dest.clone();
     destination.setY(destination.y + 1);
     let forwardVector = new Vector3(0,0,0);
-    if(raceState === raceStatus.running) {
-
-    }
-    let speed = driveSpeed * 20;
+    let speed;
     useFrame((_state, delta) => {
-        speed *= delta;
+        speed = driveSpeed * delta * 20;
         if(raceState === raceStatus.running) {
             forwardVector = forwardVector.subVectors(destination, shipRef.current.position).normalize();
             if(shipRef.current.position.equals(destination)) {
@@ -92,19 +90,30 @@ export default function Race() {
             <div className={"absolute flex w-full pt-5 pr-10 justify-end"}>
                 <div className={"flex flex-col space-y-5"}>
                     <div className={"flex space-x-4 justify-end"}>
-                        <div>
-                            <Button onClick={() => {
-                                setRaceState(raceStatus.running)
-                                setOpenSetup(false)
-                            }} disabled={Boolean(raceState)}
-                                          className={"text-white rounded-r-none bg-green-500 hover:text-white hover:bg-green-600"}>Start</Button>
-                            <Button onClick={() => setRaceState(raceStatus.paused)} disabled={!Boolean(raceState)}
-                                          className={"text-black rounded-none bg-white hover:text-black hover:bg-gray-200"}>Pause</Button>
+                        <div className={"flex"}>
+                            {
+                                (raceState != raceStatus.running) ?
+                                <Button onClick={() => {
+                                    setRaceState(raceStatus.running)
+                                    setOpenSetup(false)
+                                }} className={"text-white rounded-r-none bg-green-500 hover:text-white hover:bg-green-600"}>
+                                    <Play />
+                                </Button>
+                                :
+                                <Button onClick={() => setRaceState(raceStatus.paused)} disabled={!Boolean(raceState)}
+                                          className={"text-black rounded-r-none bg-white hover:text-black hover:bg-gray-200"}>
+                                        <Pause />
+                                </Button>
+                            }
                             <Button onClick={() => setRaceState(raceStatus.stopped)} disabled={!Boolean(raceState)}
-                                          className={"text-white rounded-l-none bg-red-500 hover:text-white hover:bg-red-600"}>Reset</Button>
+                                          className={"text-white rounded-l-none bg-red-500 hover:text-white hover:bg-red-600"}>
+                                <RotateCcw />
+                            </Button>
                         </div>
                         <MotionButton whileHover={{scale: 1.1}} onClick={() => setOpenSetup(!openSetup)} disabled={Boolean(raceState)}
-                                      className={"text-black bg-white hover:text-black hover:bg-white"}>Setup</MotionButton>
+                                      className={"text-black bg-white hover:text-black hover:bg-white"}>
+                            <Settings />
+                        </MotionButton>
                     </div>
                     <AnimatePresence>
                         {openSetup &&
@@ -191,6 +200,9 @@ const Objects = ({ship1, ship2}:
             <mesh position={[22.462, 1, -37.186]} ref={ship1}>
                 <sphereGeometry args={[0.5, 64, 32]} />
                 <meshStandardMaterial color={0xff0000} />
+                <Html>
+                    <div className={"text-white w-20"}>Ship 1</div>
+                </Html>
             </mesh>
             <mesh position={[0, 0, -5]} ref={ship2}>
                 <sphereGeometry args={[0.5, 64, 32]} />

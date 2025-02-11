@@ -3,23 +3,21 @@
 import Link from 'next/link';
 import {usePathname} from "next/navigation";
 import clsx from "clsx";
-import Home from "@/public/home.svg";
-import RaceFlag from "@/public/race-flag.svg";
-import CompareArrows from "@/public/compare_arrows.svg";
+import {House, Atom, ArrowLeftRight} from "lucide-react";
 
 const links = [
     {
-        name: 'Home',
+        name: 'SCV',
         href: '/',
-        icon: Home},
+        icon: House},
     {
         name: 'Quantum Race',
         href: '/race',
-        icon: RaceFlag},
+        icon: Atom},
     {
         name: 'Ship Compare',
         href: '/compare',
-        icon: CompareArrows},
+        icon: ArrowLeftRight},
 ];
 
 export default function NavbarLinks() {
@@ -39,7 +37,7 @@ export default function NavbarLinks() {
                             }
                         )}
                     >
-                        <LinkIcon fill={"white"}/>
+                        <LinkIcon />
                         <p className="hidden md:block">{link.name}</p>
                     </Link>
                 );
