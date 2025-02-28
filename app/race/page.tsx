@@ -11,6 +11,9 @@ import LocCombo from "@/components/ui/race/loc-combo";
 import {Separator} from "@/components/ui/separator";
 import {AnimatePresence, motion} from "motion/react";
 import {Pause, Play, RotateCcw, Settings} from "lucide-react";
+import {Switch} from "@/components/ui/switch";
+import {Label} from "@/components/ui/label";
+import clsx from "clsx";
 
 const MotionButton = motion.create(Button);
 
@@ -27,19 +30,47 @@ enum raceStatus {
     paused,
 }
 
+enum jumpPhase {
+    accel,
+    cruise,
+    decel,
+    complete,
+}
+
 const driveSpeed = 0.171;
 const fuelUse = 0.016;
 const fuelCap = 3.6;
+const stage1accel = 0.003450;
+const stage2accel = 0.017200;
 
-const ShipRace = ({raceState, setRaceState, shipRef, dest}:
-                   {raceState: raceStatus, setRaceState: Dispatch<SetStateAction<raceStatus>>, shipRef: RefObject<Mesh>, dest: Vector3}) => {
+let accel = 0;
+let realSpeed = 0;
+
+const ShipRace = ({raceState, setRaceState, shipRef, dest, setSpeedState, simRate}:
+                   {raceState: raceStatus, setRaceState: Dispatch<SetStateAction<raceStatus>>, shipRef: RefObject<Mesh>, dest: Vector3, setSpeedState: Dispatch<SetStateAction<number>>, simRate: number}) => {
+    const accelLength = 2 * driveSpeed / (stage1accel + stage2accel);
+    const accelRate = (stage2accel - stage1accel) / accelLength;
+
+    accel = stage1accel;
+
     const destination = dest.clone();
     destination.setY(destination.y + 1);
     let forwardVector = new Vector3(0,0,0);
-    let speed;
+    let speed = 0;
+
     useFrame((_state, delta) => {
-        speed = driveSpeed * delta * 20;
+
         if(raceState === raceStatus.running) {
+            if(realSpeed != driveSpeed) {
+                accel += (accelRate * delta * simRate);
+                realSpeed += (accel * delta * simRate);
+
+            }
+            if(realSpeed >= driveSpeed){
+                realSpeed = driveSpeed;
+                accel = 0;
+            }
+            speed = realSpeed * delta * simRate;
             forwardVector = forwardVector.subVectors(destination, shipRef.current.position).normalize();
             if(shipRef.current.position.equals(destination)) {
                 setRaceState(raceStatus.paused);
@@ -47,6 +78,13 @@ const ShipRace = ({raceState, setRaceState, shipRef, dest}:
             shipRef.current.position.x += forwardVector.x * speed;
             shipRef.current.position.y += forwardVector.y * speed;
             shipRef.current.position.z += forwardVector.z * speed;
+        }
+    });
+
+    useEffect(() => {
+        const interval = setInterval(() => setSpeedState(realSpeed), 100);
+        return () => {
+            clearInterval(interval);
         }
     });
 
@@ -60,6 +98,8 @@ export default function Race() {
     const shipObj2 = useRef<Mesh>(null!);
 
     const [openSetup, setOpenSetup] = useState(false);
+    const [nameVis, setNameVis] = useState(true);
+    const [simRate, setSimRate] = useState(1);
 
     const [ship1, setShip1] = useState("misc_starlancer_max");
     const [drive1, setDrive1] = useState("sparkfire");
@@ -67,6 +107,9 @@ export default function Race() {
     const [drive2, setDrive2] = useState("");
     const [origin, setOrigin] = useState("microtech");
     const [dest, setDest] = useState("hurston");
+
+    const [jumpState, setJumpState] = useState(jumpPhase.accel);
+    const [speedState, setSpeedState] = useState(0);
 
     const [raceState, setRaceState] = useState(raceStatus.stopped);
 
@@ -82,9 +125,9 @@ export default function Race() {
         <>
             <div className={"w-full h-full bg-gray-950 overflow-hidden min-w-0 min-h-0"}>
                 <Canvas camera={{fov: 60, position:[0,80,0]}}>
-                    <Objects ship1={shipObj1} ship2={shipObj2} />
+                    <Objects ship1={shipObj1} ship2={shipObj2} speedState={speedState} nameVis={nameVis}/>
                     <Stars fade speed={0} />
-                    <ShipRace raceState={raceState} setRaceState={setRaceState} shipRef={shipObj1} dest={locations[dest]}/>
+                    <ShipRace raceState={raceState} setRaceState={setRaceState} shipRef={shipObj1} dest={locations[dest]} setSpeedState={setSpeedState} simRate={simRate}/>
                 </Canvas>
             </div>
             <div className={"absolute flex w-full pt-5 pr-10 justify-end"}>
@@ -101,7 +144,7 @@ export default function Race() {
                                 </Button>
                                 :
                                 <Button onClick={() => setRaceState(raceStatus.paused)} disabled={!Boolean(raceState)}
-                                          className={"text-black rounded-r-none bg-white hover:text-black hover:bg-gray-200"}>
+                                          className={"rounded-r-none"}>
                                         <Pause />
                                 </Button>
                             }
@@ -110,11 +153,20 @@ export default function Race() {
                                 <RotateCcw />
                             </Button>
                         </div>
-                        <MotionButton whileHover={{scale: 1.1}} onClick={() => setOpenSetup(!openSetup)} disabled={Boolean(raceState)}
-                                      className={"text-black bg-white hover:text-black hover:bg-white"}>
+                        <MotionButton whileHover={{scale: 1.1}} onClick={() => setOpenSetup(!openSetup)} disabled={Boolean(raceState)}>
                             <Settings />
                         </MotionButton>
                     </div>
+                    <div className={"flex"}>
+                        <Button onClick={() => setSimRate(1)} className={clsx("rounded-r-none", {"bg-neutral-400": simRate == 1})}>1x</Button>
+                        <Button onClick={() => setSimRate(2)} className={clsx("rounded-l-none rounded-r-none", {"text-white bg-gray-400": simRate == 2})}>2x</Button>
+                        <Button onClick={() => setSimRate(4)} className={clsx("rounded-l-none", {"text-white bg-gray-400": simRate == 4})}>4x</Button>
+                    </div>
+                    <div className={"flex items-center space-x-2 justify-end"}>
+                        <Switch checked={nameVis} onCheckedChange={() => setNameVis(!nameVis)} />
+                        <Label className={"text-white"}>Location Names</Label>
+                    </div>
+
                     <AnimatePresence>
                         {openSetup &&
                             <motion.div initial={{ opacity: 0, scale: 0 }}
@@ -146,8 +198,8 @@ export default function Race() {
     )
 }
 
-const Objects = ({ship1, ship2}:
-                 {ship1: RefObject<Mesh>, ship2: RefObject<Mesh>}) => {
+const Objects = ({ship1, ship2, speedState, nameVis}:
+                 {ship1: RefObject<Mesh>, ship2: RefObject<Mesh>, speedState: number, nameVis: boolean}) => {
 
     const microtechOrbit = useMemo(() => {
         return new EllipseCurve(0,0, 43.443,43.443, 0,2 * Math.PI, false, 0).getPoints(150).map((point) =>
@@ -181,27 +233,47 @@ const Objects = ({ship1, ship2}:
             <mesh position={locations.microtech} >
                 <sphereGeometry args={[1, 64, 32]} />
                 <meshStandardMaterial color={0xb3ccf5} />
+                {nameVis &&
+                    <Html>
+                        <div className={"text-white pl-5 w-20 opacity-50"}>Microtech</div>
+                    </Html>
+                }
             </mesh>
             <Line points={hurstonOrbit} color={0xffffff} lineWidth={0.5} opacity={0.5} transparent={true} />
             <mesh position={locations.hurston} >
                 <sphereGeometry args={[1, 64, 32]} />
                 <meshStandardMaterial color={0xeb8334} />
+                {nameVis &&
+                    <Html>
+                        <div className={"text-white pl-5 w-20 opacity-50"}>Hurston</div>
+                    </Html>
+                }
             </mesh>
             <Line points={arccorpOrbit} color={0xffffff} lineWidth={0.5} opacity={0.5} transparent={true} />
             <mesh position={locations.arccorp} >
                 <sphereGeometry args={[1, 64, 32]} />
                 <meshStandardMaterial color={0x9aa0b5} />
+                {nameVis &&
+                    <Html>
+                        <div className={"text-white pl-5 w-20 opacity-50"}>ArcCorp</div>
+                    </Html>
+                }
             </mesh>
             <Line points={crusaderOrbit} color={0xffffff} lineWidth={0.5} opacity={0.5} transparent={true} />
             <mesh position={locations.crusader} >
                 <sphereGeometry args={[1, 64, 32]} />
                 <meshStandardMaterial color={0xf5bae3} />
+                {nameVis &&
+                    <Html>
+                        <div className={"text-white pl-5 w-20 opacity-50"}>Crusader</div>
+                    </Html>
+                }
             </mesh>
             <mesh position={[22.462, 1, -37.186]} ref={ship1}>
                 <sphereGeometry args={[0.5, 64, 32]} />
                 <meshStandardMaterial color={0xff0000} />
                 <Html>
-                    <div className={"text-white w-20"}>Ship 1</div>
+                    <div className={"text-white w-20"}>{(speedState * 1000).toFixed(0)} km/s</div>
                 </Html>
             </mesh>
             <mesh position={[0, 0, -5]} ref={ship2}>
