@@ -17,6 +17,8 @@ import clsx from "clsx";
 
 const MotionButton = motion.create(Button);
 
+const degToRad = (deg: number) => (deg * Math.PI) / 180;
+
 const locations: Record<string, Vector3> = {
     microtech: new Vector3(22.462, 0, -37.186),
     hurston: new Vector3(12.85, 0, 0),
@@ -78,6 +80,11 @@ const ShipRace = ({raceState, setRaceState, shipRef, dest, setSpeedState, simRat
             shipRef.current.position.x += forwardVector.x * speed;
             shipRef.current.position.y += forwardVector.y * speed;
             shipRef.current.position.z += forwardVector.z * speed;
+        }
+        if(raceState === raceStatus.stopped) {
+            accel = 0;
+            realSpeed = 0;
+            speed = 0;
         }
     });
 
