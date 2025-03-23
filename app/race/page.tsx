@@ -1,9 +1,9 @@
 "use client";
 
 import {Canvas, useFrame} from "@react-three/fiber";
-import {Bounds, Html, Line, Stars} from "@react-three/drei";
-import {Dispatch, RefObject, SetStateAction, useEffect, useMemo, useRef, useState} from "react";
-import {EllipseCurve, Mesh, Vector3} from "three";
+import {Bounds, Stars, OrbitControls} from "@react-three/drei";
+import {Dispatch, RefObject, SetStateAction, useEffect, useRef, useState} from "react";
+import {Mesh, Vector3} from "three";
 import {Button} from "@/components/ui/button";
 import ShipsCombo from "@/components/ui/race/ships-combo";
 import DrivesCombo from "@/components/ui/race/drives-combo";
@@ -14,17 +14,12 @@ import {Pause, Play, RotateCcw, Settings} from "lucide-react";
 import {Switch} from "@/components/ui/switch";
 import {Label} from "@/components/ui/label";
 import clsx from "clsx";
+import {locations} from "@/components/locations";
+import {Objects} from "@/components/race-objects";
 
 const MotionButton = motion.create(Button);
 
 const degToRad = (deg: number) => (deg * Math.PI) / 180;
-
-const locations: Record<string, Vector3> = {
-    microtech: new Vector3(22.462, 0, -37.186),
-    hurston: new Vector3(12.85, 0, 0),
-    arccorp: new Vector3(18.588, 0, 22.152),
-    crusader: new Vector3(-18.962, 0, 2.665),
-};
 
 enum raceStatus {
     stopped,
@@ -130,19 +125,24 @@ export default function Race() {
 
     return (
         <>
-            <div className={"w-full h-full bg-gray-950 overflow-hidden min-w-0 min-h-0"}>
-                <Canvas camera={{fov: 60, position:[0,80,0]}}>
-                    <Objects ship1={shipObj1} ship2={shipObj2} speedState={speedState} nameVis={nameVis}/>
-                    <Stars fade speed={0} />
-                    <ShipRace raceState={raceState} setRaceState={setRaceState} shipRef={shipObj1} dest={locations[dest]} setSpeedState={setSpeedState} simRate={simRate}/>
-                </Canvas>
-            </div>
-            <div className={"absolute flex w-full pt-5 pr-10 justify-end"}>
-                <div className={"flex flex-col space-y-5"}>
-                    <div className={"flex space-x-4 justify-end"}>
-                        <div className={"flex"}>
-                            {
-                                (raceState != raceStatus.running) ?
+            <div className={"flex flex-col w-full"}>
+                <div className={"grow bg-gray-950 overflow-hidden min-w-0 min-h-0"}>
+                    <Canvas camera={{fov: 60, position:[0,80,0]}}>
+                        <Objects ship1={shipObj1} ship2={shipObj2} speedState={speedState} nameVis={nameVis}/>
+                        <Stars fade speed={0} />
+                        <ShipRace raceState={raceState} setRaceState={setRaceState} shipRef={shipObj1} dest={locations[dest]} setSpeedState={setSpeedState} simRate={simRate}/>
+                        <OrbitControls/>
+                    </Canvas>
+                </div>
+                <div className={"flex flex-row justify-center items-center space-x-5 p-3 bg-gray-600"}>
+                    <h1>Origin</h1>
+                    <LocCombo value={origin} setValue={setOrigin} />
+                    <h1>Destination</h1>
+                    <LocCombo value={dest} setValue={setDest} />
+                    <Separator orientation="vertical" />
+                    <div>
+                        {
+                            (raceState != raceStatus.running) ?
                                 <Button onClick={() => {
                                     setRaceState(raceStatus.running)
                                     setOpenSetup(false)
@@ -151,142 +151,39 @@ export default function Race() {
                                 </Button>
                                 :
                                 <Button onClick={() => setRaceState(raceStatus.paused)} disabled={!Boolean(raceState)}
-                                          className={"rounded-r-none"}>
-                                        <Pause />
+                                        className={"rounded-r-none"}>
+                                    <Pause />
                                 </Button>
-                            }
-                            <Button onClick={() => setRaceState(raceStatus.stopped)} disabled={!Boolean(raceState)}
-                                          className={"text-white rounded-l-none bg-red-500 hover:text-white hover:bg-red-600"}>
-                                <RotateCcw />
-                            </Button>
-                        </div>
-                        <MotionButton whileHover={{scale: 1.1}} onClick={() => setOpenSetup(!openSetup)} disabled={Boolean(raceState)}>
-                            <Settings />
-                        </MotionButton>
+                        }
+                        <Button onClick={() => setRaceState(raceStatus.stopped)} disabled={!Boolean(raceState)}
+                                className={"text-white rounded-l-none bg-red-500 hover:text-white hover:bg-red-600"}>
+                            <RotateCcw />
+                        </Button>
                     </div>
-                    <div className={"flex"}>
+                    <div>
                         <Button onClick={() => setSimRate(1)} className={clsx("rounded-r-none", {"bg-neutral-400": simRate == 1})}>1x</Button>
                         <Button onClick={() => setSimRate(2)} className={clsx("rounded-l-none rounded-r-none", {"text-white bg-gray-400": simRate == 2})}>2x</Button>
                         <Button onClick={() => setSimRate(4)} className={clsx("rounded-l-none", {"text-white bg-gray-400": simRate == 4})}>4x</Button>
                     </div>
+                    <Separator orientation="vertical" />
+                    <h1>Ship 1</h1>
+                    <ShipsCombo value={ship1} setValue={setShip1} />
+                    <DrivesCombo value={drive1} setValue={setDrive1} />
+                    <Separator orientation="vertical" />
+                    <h1>Ship 2</h1>
+                    <ShipsCombo value={ship2} setValue={setShip2} />
+                    <DrivesCombo value={drive2} setValue={setDrive2} />
+                </div>
+            </div>
+
+            <div className={"absolute flex w-full pt-5 pr-10 justify-end"}>
+                <div className={"flex flex-col space-y-5"}>
                     <div className={"flex items-center space-x-2 justify-end"}>
                         <Switch checked={nameVis} onCheckedChange={() => setNameVis(!nameVis)} />
                         <Label className={"text-white"}>Location Names</Label>
                     </div>
-
-                    <AnimatePresence>
-                        {openSetup &&
-                            <motion.div initial={{ opacity: 0, scale: 0 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0 }}
-                                        className={"flex flex-col space-y-5 p-5 bg-gray-300 rounded-md"}>
-                                <div className={"flex flex-col space-y-3"}>
-                                    <h1>Ship 1</h1>
-                                    <ShipsCombo value={ship1} setValue={setShip1} />
-                                    <DrivesCombo value={drive1} setValue={setDrive1} />
-                                </div>
-                                <Separator />
-                                <div className={"flex flex-col space-y-3"}>
-                                    <h1>Ship 2</h1>
-                                    <ShipsCombo value={ship2} setValue={setShip2} />
-                                    <DrivesCombo value={drive2} setValue={setDrive2} />
-                                </div>
-                                <Separator />
-                                <h1>Origin</h1>
-                                <LocCombo value={origin} setValue={setOrigin} />
-                                <h1>Destination</h1>
-                                <LocCombo value={dest} setValue={setDest} />
-                            </motion.div>}
-                    </AnimatePresence>
                 </div>
             </div>
-        </>
-
-    )
-}
-
-const Objects = ({ship1, ship2, speedState, nameVis}:
-                 {ship1: RefObject<Mesh>, ship2: RefObject<Mesh>, speedState: number, nameVis: boolean}) => {
-
-    const microtechOrbit = useMemo(() => {
-        return new EllipseCurve(0,0, 43.443,43.443, 0,2 * Math.PI, false, 0).getPoints(150).map((point) =>
-            new Vector3(point.x, 0, point.y))
-    }, []);
-
-    const hurstonOrbit = useMemo(() => {
-        return new EllipseCurve(0,0, 12.85,12.85, 0,2 * Math.PI, false, 0).getPoints(150).map((point) =>
-            new Vector3(point.x, 0, point.y))
-    }, []);
-
-    const arccorpOrbit = useMemo(() => {
-        return new EllipseCurve(0,0, 28.917,28.917, 0,2 * Math.PI, false, 0).getPoints(150).map((point) =>
-            new Vector3(point.x, 0, point.y))
-    }, []);
-
-    const crusaderOrbit = useMemo(() => {
-        return new EllipseCurve(0,0, 19.148,19.148, 0,2 * Math.PI, false, 0).getPoints(150).map((point) =>
-            new Vector3(point.x, 0, point.y))
-    }, []);
-
-    return (
-        <>
-            <ambientLight intensity={0.25} />
-            <pointLight intensity={2} decay={0} position={[0, 0, 0]}/>
-            <mesh position={[0, 0, 0]}>
-                <sphereGeometry args={[0.8, 64, 32]} />
-                <meshStandardMaterial emissive={0xffffff} />
-            </mesh>
-            <Line points={microtechOrbit} color={0xffffff} lineWidth={0.5} opacity={0.5} transparent={true} />
-            <mesh position={locations.microtech} >
-                <sphereGeometry args={[1, 64, 32]} />
-                <meshStandardMaterial color={0xb3ccf5} />
-                {nameVis &&
-                    <Html>
-                        <div className={"text-white pl-5 w-20 opacity-50"}>Microtech</div>
-                    </Html>
-                }
-            </mesh>
-            <Line points={hurstonOrbit} color={0xffffff} lineWidth={0.5} opacity={0.5} transparent={true} />
-            <mesh position={locations.hurston} >
-                <sphereGeometry args={[1, 64, 32]} />
-                <meshStandardMaterial color={0xeb8334} />
-                {nameVis &&
-                    <Html>
-                        <div className={"text-white pl-5 w-20 opacity-50"}>Hurston</div>
-                    </Html>
-                }
-            </mesh>
-            <Line points={arccorpOrbit} color={0xffffff} lineWidth={0.5} opacity={0.5} transparent={true} />
-            <mesh position={locations.arccorp} >
-                <sphereGeometry args={[1, 64, 32]} />
-                <meshStandardMaterial color={0x9aa0b5} />
-                {nameVis &&
-                    <Html>
-                        <div className={"text-white pl-5 w-20 opacity-50"}>ArcCorp</div>
-                    </Html>
-                }
-            </mesh>
-            <Line points={crusaderOrbit} color={0xffffff} lineWidth={0.5} opacity={0.5} transparent={true} />
-            <mesh position={locations.crusader} >
-                <sphereGeometry args={[1, 64, 32]} />
-                <meshStandardMaterial color={0xf5bae3} />
-                {nameVis &&
-                    <Html>
-                        <div className={"text-white pl-5 w-20 opacity-50"}>Crusader</div>
-                    </Html>
-                }
-            </mesh>
-            <mesh position={[22.462, 1, -37.186]} ref={ship1}>
-                <sphereGeometry args={[0.5, 64, 32]} />
-                <meshStandardMaterial color={0xff0000} />
-                <Html>
-                    <div className={"text-white w-20"}>{(speedState * 1000).toFixed(0)} km/s</div>
-                </Html>
-            </mesh>
-            <mesh position={[0, 0, -5]} ref={ship2}>
-                <sphereGeometry args={[0.5, 64, 32]} />
-                <meshStandardMaterial color={0xff0000} />
-            </mesh>
         </>
 
     )
