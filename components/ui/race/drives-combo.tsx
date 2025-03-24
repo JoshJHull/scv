@@ -6,7 +6,7 @@ import {cn} from "@/lib/utils";
 import {Dispatch, SetStateAction, useState} from "react";
 
 
-export default function DrivesCombo({value, setValue}: {value: string, setValue: Dispatch<SetStateAction<string>>}) {
+export default function DrivesCombo({value, setValue, disabled}: {value: string, setValue: Dispatch<SetStateAction<string>>, disabled: boolean}) {
     const [open, setOpen] = useState(false);
 
     const drives = [
@@ -22,7 +22,7 @@ export default function DrivesCombo({value, setValue}: {value: string, setValue:
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild disabled={disabled}>
                 <Button
                     variant="outline"
                     role="combobox"

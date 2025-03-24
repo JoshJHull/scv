@@ -6,7 +6,7 @@ import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandL
 import {cn} from "@/lib/utils";
 
 
-export default function ShipsCombo({value, setValue}: {value: string, setValue: Dispatch<SetStateAction<string>>}) {
+export default function ShipsCombo({value, setValue, disabled}: {value: string, setValue: Dispatch<SetStateAction<string>>, disabled: boolean}) {
     const [open, setOpen] = useState(false);
 
     const ships = [
@@ -22,7 +22,7 @@ export default function ShipsCombo({value, setValue}: {value: string, setValue: 
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild disabled={disabled}>
                 <Button
                     variant="outline"
                     role="combobox"

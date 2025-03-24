@@ -16,6 +16,7 @@ import {Label} from "@/components/ui/label";
 import clsx from "clsx";
 import {locations} from "@/components/locations";
 import {Objects} from "@/components/race-objects";
+import {driveList} from "@/components/drives";
 
 const MotionButton = motion.create(Button);
 
@@ -43,8 +44,8 @@ const stage2accel = 0.017200;
 let accel = 0;
 let realSpeed = 0;
 
-const ShipRace = ({raceState, setRaceState, shipRef, dest, setSpeedState, simRate}:
-                   {raceState: raceStatus, setRaceState: Dispatch<SetStateAction<raceStatus>>, shipRef: RefObject<Mesh>, dest: Vector3, setSpeedState: Dispatch<SetStateAction<number>>, simRate: number}) => {
+const ShipRace = ({raceState, setRaceState, ship1Ref, ship2Ref, dest, setSpeedState, simRate}:
+                   {raceState: raceStatus, setRaceState: Dispatch<SetStateAction<raceStatus>>, ship1Ref: RefObject<Mesh>, ship2Ref: RefObject<Mesh>, dest: Vector3, setSpeedState: Dispatch<SetStateAction<number>>, simRate: number}) => {
     const accelLength = 2 * driveSpeed / (stage1accel + stage2accel);
     const accelRate = (stage2accel - stage1accel) / accelLength;
 
@@ -58,6 +59,7 @@ const ShipRace = ({raceState, setRaceState, shipRef, dest, setSpeedState, simRat
     useFrame((_state, delta) => {
 
         if(raceState === raceStatus.running) {
+            //ship1
             if(realSpeed != driveSpeed) {
                 accel += (accelRate * delta * simRate);
                 realSpeed += (accel * delta * simRate);
@@ -68,13 +70,16 @@ const ShipRace = ({raceState, setRaceState, shipRef, dest, setSpeedState, simRat
                 accel = 0;
             }
             speed = realSpeed * delta * simRate;
-            forwardVector = forwardVector.subVectors(destination, shipRef.current.position).normalize();
-            if(shipRef.current.position.equals(destination)) {
+            forwardVector = forwardVector.subVectors(destination, ship1Ref.current.position).normalize();
+            if(ship1Ref.current.position.equals(destination)) {
                 setRaceState(raceStatus.paused);
             }
-            shipRef.current.position.x += forwardVector.x * speed;
-            shipRef.current.position.y += forwardVector.y * speed;
-            shipRef.current.position.z += forwardVector.z * speed;
+            ship1Ref.current.position.x += forwardVector.x * speed;
+            ship1Ref.current.position.y += forwardVector.y * speed;
+            ship1Ref.current.position.z += forwardVector.z * speed;
+
+            //ship2
+
         }
         if(raceState === raceStatus.stopped) {
             accel = 0;
@@ -116,10 +121,16 @@ export default function Race() {
     const [raceState, setRaceState] = useState(raceStatus.stopped);
 
     useEffect(() => {
-        if(shipObj1.current && raceState === raceStatus.stopped) {
-            shipObj1.current.position.x = locations[origin].x;
-            shipObj1.current.position.y = 1;
-            shipObj1.current.position.z = locations[origin].z;
+        if(shipObj1.current && shipObj2.current) {
+            if (raceState === raceStatus.stopped) {
+                shipObj1.current.position.x = locations[origin].x - 0.75;
+                shipObj1.current.position.y = 1.5;
+                shipObj1.current.position.z = locations[origin].z;
+
+                shipObj2.current.position.x = locations[origin].x + 0.75;
+                shipObj2.current.position.y = 1.5;
+                shipObj2.current.position.z = locations[origin].z;
+            }
         }
     }, [raceState, origin]);
 
@@ -130,58 +141,70 @@ export default function Race() {
                     <Canvas camera={{fov: 60, position:[0,80,0]}}>
                         <Objects ship1={shipObj1} ship2={shipObj2} speedState={speedState} nameVis={nameVis}/>
                         <Stars fade speed={0} />
-                        <ShipRace raceState={raceState} setRaceState={setRaceState} shipRef={shipObj1} dest={locations[dest]} setSpeedState={setSpeedState} simRate={simRate}/>
+                        <ShipRace raceState={raceState} setRaceState={setRaceState} ship1Ref={shipObj1} ship2Ref={shipObj2}
+                                  dest={locations[dest]} setSpeedState={setSpeedState} simRate={simRate}/>
                         <OrbitControls/>
                     </Canvas>
                 </div>
-                <div className={"flex flex-row justify-center items-center space-x-5 p-3 bg-gray-600"}>
-                    <h1>Origin</h1>
-                    <LocCombo value={origin} setValue={setOrigin} />
-                    <h1>Destination</h1>
-                    <LocCombo value={dest} setValue={setDest} />
-                    <Separator orientation="vertical" />
-                    <div>
-                        {
-                            (raceState != raceStatus.running) ?
-                                <Button onClick={() => {
-                                    setRaceState(raceStatus.running)
-                                    setOpenSetup(false)
-                                }} className={"text-white rounded-r-none bg-green-500 hover:text-white hover:bg-green-600"}>
-                                    <Play />
-                                </Button>
-                                :
-                                <Button onClick={() => setRaceState(raceStatus.paused)} disabled={!Boolean(raceState)}
-                                        className={"rounded-r-none"}>
-                                    <Pause />
-                                </Button>
-                        }
-                        <Button onClick={() => setRaceState(raceStatus.stopped)} disabled={!Boolean(raceState)}
-                                className={"text-white rounded-l-none bg-red-500 hover:text-white hover:bg-red-600"}>
-                            <RotateCcw />
-                        </Button>
+                <div className={"flex flex-row justify-center items-center space-x-8 p-3 bg-gray-600"}>
+                    <div className={"flex justify-center items-center space-x-3"}>
+                        <div className={"flex flex-col space-y-2"}>
+                            <h1 className={"text-white"}>Origin</h1>
+                            <LocCombo value={origin} setValue={setOrigin} disabled={Boolean(raceState)} />
+                        </div>
+                        <div className={"flex flex-col space-y-2"}>
+                            <h1 className={"text-white"}>Destination</h1>
+                            <LocCombo value={dest} setValue={setDest} disabled={Boolean(raceState)} />
+                        </div>
                     </div>
-                    <div>
-                        <Button onClick={() => setSimRate(1)} className={clsx("rounded-r-none", {"bg-neutral-400": simRate == 1})}>1x</Button>
-                        <Button onClick={() => setSimRate(2)} className={clsx("rounded-l-none rounded-r-none", {"text-white bg-gray-400": simRate == 2})}>2x</Button>
-                        <Button onClick={() => setSimRate(4)} className={clsx("rounded-l-none", {"text-white bg-gray-400": simRate == 4})}>4x</Button>
+                    <div className={"flex justify-center items-center space-x-3"}>
+                        <div className={"flex flex-nowrap"}>
+                            {
+                                (raceState != raceStatus.running) ?
+                                    <Button onClick={() => {
+                                        setRaceState(raceStatus.running)
+                                        setOpenSetup(false)
+                                    }} className={"text-white rounded-r-none bg-green-500 hover:text-white hover:bg-green-600"}>
+                                        <Play />
+                                    </Button>
+                                    :
+                                    <Button onClick={() => setRaceState(raceStatus.paused)} disabled={!Boolean(raceState)}
+                                            className={"rounded-r-none"}>
+                                        <Pause />
+                                    </Button>
+                            }
+                            <Button onClick={() => setRaceState(raceStatus.stopped)} disabled={!Boolean(raceState)}
+                                    className={"text-white rounded-l-none bg-red-500 hover:text-white hover:bg-red-600"}>
+                                <RotateCcw />
+                            </Button>
+                        </div>
+                        <div className={"flex flex-nowrap"}>
+                            <Button onClick={() => setSimRate(1)} className={clsx("rounded-r-none", {"bg-neutral-400": simRate == 1})}>1x</Button>
+                            <Button onClick={() => setSimRate(2)} className={clsx("rounded-l-none rounded-r-none", {"text-white bg-gray-400": simRate == 2})}>2x</Button>
+                            <Button onClick={() => setSimRate(4)} className={clsx("rounded-l-none", {"text-white bg-gray-400": simRate == 4})}>4x</Button>
+                        </div>
                     </div>
-                    <Separator orientation="vertical" />
-                    <h1>Ship 1</h1>
-                    <ShipsCombo value={ship1} setValue={setShip1} />
-                    <DrivesCombo value={drive1} setValue={setDrive1} />
-                    <Separator orientation="vertical" />
-                    <h1>Ship 2</h1>
-                    <ShipsCombo value={ship2} setValue={setShip2} />
-                    <DrivesCombo value={drive2} setValue={setDrive2} />
+                    <div className={"flex justify-center items-center space-x-3"}>
+                        <h1 className={"text-white"}>Ship 1</h1>
+                        <div className={"flex flex-col space-y-2"}>
+                            <ShipsCombo value={ship1} setValue={setShip1} disabled={Boolean(raceState)} />
+                            <DrivesCombo value={drive1} setValue={setDrive1} disabled={Boolean(raceState)} />
+                        </div>
+                    </div>
+                    <div className={"flex justify-center items-center space-x-3"}>
+                        <h1 className={"text-white"}>Ship 2</h1>
+                        <div className={"flex flex-col space-y-2"}>
+                            <ShipsCombo value={ship2} setValue={setShip2} disabled={Boolean(raceState)} />
+                            <DrivesCombo value={drive2} setValue={setDrive2} disabled={Boolean(raceState)} />
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div className={"absolute flex w-full pt-5 pr-10 justify-end"}>
-                <div className={"flex flex-col space-y-5"}>
                     <div className={"flex items-center space-x-2 justify-end"}>
-                        <Switch checked={nameVis} onCheckedChange={() => setNameVis(!nameVis)} />
                         <Label className={"text-white"}>Location Names</Label>
-                    </div>
+                        <Switch checked={nameVis} onCheckedChange={() => setNameVis(!nameVis)} />
                 </div>
             </div>
         </>

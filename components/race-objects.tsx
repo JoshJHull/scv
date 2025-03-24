@@ -74,16 +74,19 @@ export const Objects = ({ship1, ship2, speedState, nameVis}:
                     </Html>
                 }
             </mesh>
-            <mesh position={[22.462, 1, -37.186]} ref={ship1}>
+            <mesh position={[22.462 - 0.75, 1.5, -37.186]} ref={ship1}>
                 <sphereGeometry args={[0.5, 64, 32]} />
                 <meshStandardMaterial color={0xff0000} />
                 <Html>
-                    <div className={"text-white w-20"}>{(speedState * 1000).toFixed(0)} km/s</div>
+                    <div className={"text-white w-20"}>{(speedState * 1000).toFixed(0)}</div>
                 </Html>
             </mesh>
-            <mesh position={[0, 0, -5]} ref={ship2}>
+            <mesh position={[22.462 + 0.75, 1.5, -37.186]} ref={ship2}>
                 <sphereGeometry args={[0.5, 64, 32]} />
-                <meshStandardMaterial color={0xff0000} />
+                <meshStandardMaterial color={0x0000fc} />
+                <Html>
+                    <div className={"text-white w-20"}>{(speedState * 1000).toFixed(0)}</div>
+                </Html>
             </mesh>
         </>
 

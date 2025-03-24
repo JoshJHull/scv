@@ -6,7 +6,7 @@ import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandL
 import {cn} from "@/lib/utils";
 
 
-export default function LocCombo({value, setValue}: {value: string, setValue: Dispatch<SetStateAction<string>>}) {
+export default function LocCombo({value, setValue, disabled}: {value: string, setValue: Dispatch<SetStateAction<string>>, disabled: boolean}) {
     const [open, setOpen] = useState(false);
 
     const locations = [
@@ -30,7 +30,7 @@ export default function LocCombo({value, setValue}: {value: string, setValue: Di
 
     return (
         <Popover open={open} onOpenChange={setOpen} >
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild disabled={disabled}>
                 <Button
                     variant="outline"
                     role="combobox"
