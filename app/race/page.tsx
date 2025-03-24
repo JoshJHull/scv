@@ -1,26 +1,24 @@
 "use client";
 
 import {Canvas, useFrame} from "@react-three/fiber";
-import {Bounds, Stars, OrbitControls} from "@react-three/drei";
+import {Stars, OrbitControls} from "@react-three/drei";
 import {Dispatch, RefObject, SetStateAction, useEffect, useRef, useState} from "react";
 import {Mesh, Vector3} from "three";
 import {Button} from "@/components/ui/button";
 import ShipsCombo from "@/components/ui/race/ships-combo";
 import DrivesCombo from "@/components/ui/race/drives-combo";
 import LocCombo from "@/components/ui/race/loc-combo";
-import {Separator} from "@/components/ui/separator";
-import {AnimatePresence, motion} from "motion/react";
-import {Pause, Play, RotateCcw, Settings} from "lucide-react";
+import {Pause, Play, RotateCcw} from "lucide-react";
 import {Switch} from "@/components/ui/switch";
 import {Label} from "@/components/ui/label";
 import clsx from "clsx";
 import {locations} from "@/components/locations";
 import {Objects} from "@/components/race-objects";
-import {driveList} from "@/components/drives";
+//import {driveList} from "@/components/drives";
 
-const MotionButton = motion.create(Button);
+//const MotionButton = motion.create(Button);
 
-const degToRad = (deg: number) => (deg * Math.PI) / 180;
+//const degToRad = (deg: number) => (deg * Math.PI) / 180;
 
 enum raceStatus {
     stopped,
@@ -28,16 +26,16 @@ enum raceStatus {
     paused,
 }
 
-enum jumpPhase {
+/*enum jumpPhase {
     accel,
     cruise,
     decel,
     complete,
-}
+}*/
 
 const driveSpeed = 0.171;
-const fuelUse = 0.016;
-const fuelCap = 3.6;
+//const fuelUse = 0.016;
+//const fuelCap = 3.6;
 const stage1accel = 0.003450;
 const stage2accel = 0.017200;
 
@@ -79,7 +77,7 @@ const ShipRace = ({raceState, setRaceState, ship1Ref, ship2Ref, dest, setSpeedSt
             ship1Ref.current.position.z += forwardVector.z * speed;
 
             //ship2
-
+            ship2Ref.current.position.x += 0;
         }
         if(raceState === raceStatus.stopped) {
             accel = 0;
@@ -104,7 +102,6 @@ export default function Race() {
     const shipObj1 = useRef<Mesh>(null!);
     const shipObj2 = useRef<Mesh>(null!);
 
-    const [openSetup, setOpenSetup] = useState(false);
     const [nameVis, setNameVis] = useState(true);
     const [simRate, setSimRate] = useState(1);
 
@@ -115,7 +112,7 @@ export default function Race() {
     const [origin, setOrigin] = useState("microtech");
     const [dest, setDest] = useState("hurston");
 
-    const [jumpState, setJumpState] = useState(jumpPhase.accel);
+    //const [jumpState, setJumpState] = useState(jumpPhase.accel);
     const [speedState, setSpeedState] = useState(0);
 
     const [raceState, setRaceState] = useState(raceStatus.stopped);
@@ -163,7 +160,6 @@ export default function Race() {
                                 (raceState != raceStatus.running) ?
                                     <Button onClick={() => {
                                         setRaceState(raceStatus.running)
-                                        setOpenSetup(false)
                                     }} className={"text-white rounded-r-none bg-green-500 hover:text-white hover:bg-green-600"}>
                                         <Play />
                                     </Button>
