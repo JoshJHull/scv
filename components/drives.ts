@@ -1,3 +1,5 @@
+import postgres from "postgres";
+
 type Drive = {
     speed: number,
     fuelUse: number,
