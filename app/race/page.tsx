@@ -14,8 +14,9 @@ import {Label} from "@/components/ui/label";
 import clsx from "clsx";
 import {locations} from "@/components/locations";
 import {Objects} from "@/components/race-objects";
+import {fetchShips} from "@/lib/db";
+import {Ship} from "@/lib/definitions";
 //import {driveList} from "@/components/drives";
-import {getDrives} from "@/components/drives";
 
 //const MotionButton = motion.create(Button);
 
@@ -118,6 +119,8 @@ export default function Race() {
 
     const [raceState, setRaceState] = useState(raceStatus.stopped);
 
+    const [shipList, setShipList] = useState<Ship[]>([]);
+
     useEffect(() => {
         if(shipObj1.current && shipObj2.current) {
             if (raceState === raceStatus.stopped) {
@@ -131,6 +134,14 @@ export default function Race() {
             }
         }
     }, [raceState, origin]);
+
+    useEffect(() => {
+        const getShips = async() => {
+            const response = await fetchShips();
+            setShipList(response);
+        }
+        getShips();
+    }, []);
 
     return (
         <>
@@ -184,14 +195,14 @@ export default function Race() {
                     <div className={"flex justify-center items-center space-x-3"}>
                         <h1 className={"text-white"}>Ship 1</h1>
                         <div className={"flex flex-col space-y-2"}>
-                            <ShipsCombo value={ship1} setValue={setShip1} disabled={Boolean(raceState)} />
+                            <ShipsCombo value={ship1} setValue={setShip1} ships={shipList} disabled={Boolean(raceState)} />
                             <DrivesCombo value={drive1} setValue={setDrive1} disabled={Boolean(raceState)} />
                         </div>
                     </div>
                     <div className={"flex justify-center items-center space-x-3"}>
                         <h1 className={"text-white"}>Ship 2</h1>
                         <div className={"flex flex-col space-y-2"}>
-                            <ShipsCombo value={ship2} setValue={setShip2} disabled={Boolean(raceState)} />
+                            <ShipsCombo value={ship2} setValue={setShip2} ships={shipList} disabled={Boolean(raceState)} />
                             <DrivesCombo value={drive2} setValue={setDrive2} disabled={Boolean(raceState)} />
                         </div>
                     </div>

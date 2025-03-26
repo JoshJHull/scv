@@ -4,21 +4,11 @@ import {Button} from "@/components/ui/button";
 import {Check, ChevronsUpDown} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {cn} from "@/lib/utils";
+import {Ship} from "@/lib/definitions";
 
 
-export default function ShipsCombo({value, setValue, disabled}: {value: string, setValue: Dispatch<SetStateAction<string>>, disabled: boolean}) {
+export default function ShipsCombo({value, setValue, ships, disabled}: {value: string, setValue: Dispatch<SetStateAction<string>>, ships: Array<Ship>, disabled: boolean}) {
     const [open, setOpen] = useState(false);
-
-    const ships = [
-        {
-            value: "misc_starlancer_max",
-            label: "MISC Starlancer MAX",
-        },
-        {
-            value: "drake_corsair",
-            label: "Drake Corsair",
-        },
-    ]
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -30,7 +20,7 @@ export default function ShipsCombo({value, setValue, disabled}: {value: string, 
                     className="w-[200px] justify-between"
                 >
                     {value
-                        ? ships.find((ship) => ship.value === value)?.label
+                        ? ships.find((ship) => ship.id === value)?.name
                         : "Select ship..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -43,8 +33,8 @@ export default function ShipsCombo({value, setValue, disabled}: {value: string, 
                         <CommandGroup>
                             {ships.map((ship) => (
                                 <CommandItem
-                                    key={ship.value}
-                                    value={ship.value}
+                                    key={ship.id}
+                                    value={ship.id}
                                     onSelect={(currentValue) => {
                                         setValue(currentValue === value ? "" : currentValue)
                                         setOpen(false)
@@ -53,10 +43,10 @@ export default function ShipsCombo({value, setValue, disabled}: {value: string, 
                                     <Check
                                         className={cn(
                                             "mr-2 h-4 w-4",
-                                            value === ship.value ? "opacity-100" : "opacity-0"
+                                            value === ship.id ? "opacity-100" : "opacity-0"
                                         )}
                                     />
-                                    {ship.label}
+                                    {ship.name}
                                 </CommandItem>
                             ))}
                         </CommandGroup>
