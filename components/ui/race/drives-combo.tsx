@@ -4,21 +4,11 @@ import {Check, ChevronsUpDown} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {cn} from "@/lib/utils";
 import {Dispatch, SetStateAction, useState} from "react";
+import {Drive} from "@/lib/definitions";
 
 
-export default function DrivesCombo({value, setValue, disabled}: {value: string, setValue: Dispatch<SetStateAction<string>>, disabled: boolean}) {
+export default function DrivesCombo({value, setValue, drives, disabled}: {value: string, setValue: Dispatch<SetStateAction<string>>, drives: Drive[], disabled: boolean}) {
     const [open, setOpen] = useState(false);
-
-    const drives = [
-        {
-            value: "sparkfire",
-            label: "Sparkfire",
-        },
-        {
-            value: "torrent",
-            label: "Torrent",
-        },
-    ]
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -30,7 +20,7 @@ export default function DrivesCombo({value, setValue, disabled}: {value: string,
                     className="w-[200px] justify-between"
                 >
                     {value
-                        ? drives.find((drive) => drive.value === value)?.label
+                        ? drives.find((drive) => drive.id === value)?.name
                         : "Select drive..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -43,8 +33,8 @@ export default function DrivesCombo({value, setValue, disabled}: {value: string,
                         <CommandGroup>
                             {drives.map((drive) => (
                                 <CommandItem
-                                    key={drive.value}
-                                    value={drive.value}
+                                    key={drive.id}
+                                    value={drive.id}
                                     onSelect={(currentValue) => {
                                         setValue(currentValue === value ? "" : currentValue)
                                         setOpen(false)
@@ -53,10 +43,10 @@ export default function DrivesCombo({value, setValue, disabled}: {value: string,
                                     <Check
                                         className={cn(
                                             "mr-2 h-4 w-4",
-                                            value === drive.value ? "opacity-100" : "opacity-0"
+                                            value === drive.id ? "opacity-100" : "opacity-0"
                                         )}
                                     />
-                                    {drive.label}
+                                    {drive.name}
                                 </CommandItem>
                             ))}
                         </CommandGroup>

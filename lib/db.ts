@@ -1,6 +1,6 @@
 'use server';
 import postgres from "postgres";
-import {Ship} from "@/lib/definitions";
+import {Drive, Ship} from "@/lib/definitions";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -11,10 +11,9 @@ export async function fetchShips() {
     `;
 }
 
-export async function fetchDrives(size: number) {
-    return sql`
-        SELECT id
+export async function fetchDrives() {
+    return sql<Drive[]>`
+        SELECT *
         FROM drives
-        WHERE size = ${size}
     `;
 }

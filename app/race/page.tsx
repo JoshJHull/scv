@@ -1,7 +1,7 @@
 "use client";
 
 import {Canvas, useFrame} from "@react-three/fiber";
-import {Stars, OrbitControls} from "@react-three/drei";
+import {OrbitControls, Stars} from "@react-three/drei";
 import {Dispatch, RefObject, SetStateAction, useEffect, useRef, useState} from "react";
 import {Mesh, Vector3} from "three";
 import {Button} from "@/components/ui/button";
@@ -14,8 +14,8 @@ import {Label} from "@/components/ui/label";
 import clsx from "clsx";
 import {locations} from "@/components/locations";
 import {Objects} from "@/components/race-objects";
-import {fetchShips} from "@/lib/db";
-import {Ship} from "@/lib/definitions";
+import {fetchDrives, fetchShips} from "@/lib/db";
+import {Drive, Ship} from "@/lib/definitions";
 //import {driveList} from "@/components/drives";
 
 //const MotionButton = motion.create(Button);
@@ -43,6 +43,8 @@ const stage2accel = 0.017200;
 
 let accel = 0;
 let realSpeed = 0;
+
+let driveList: Drive[] = [];
 
 const ShipRace = ({raceState, setRaceState, ship1Ref, ship2Ref, dest, setSpeedState, simRate}:
                    {raceState: raceStatus, setRaceState: Dispatch<SetStateAction<raceStatus>>, ship1Ref: RefObject<Mesh>, ship2Ref: RefObject<Mesh>, dest: Vector3, setSpeedState: Dispatch<SetStateAction<number>>, simRate: number}) => {
@@ -107,8 +109,8 @@ export default function Race() {
     const [nameVis, setNameVis] = useState(true);
     const [simRate, setSimRate] = useState(1);
 
-    const [ship1, setShip1] = useState("misc_starlancer_max");
-    const [drive1, setDrive1] = useState("sparkfire");
+    const [ship1, setShip1] = useState("");
+    const [drive1, setDrive1] = useState("");
     const [ship2, setShip2] = useState("");
     const [drive2, setDrive2] = useState("");
     const [origin, setOrigin] = useState("microtech");
@@ -120,6 +122,8 @@ export default function Race() {
     const [raceState, setRaceState] = useState(raceStatus.stopped);
 
     const [shipList, setShipList] = useState<Ship[]>([]);
+    const [driveList1, setDriveList1] = useState<Drive[]>([]);
+    const [driveList2, setDriveList2] = useState<Drive[]>([]);
 
     useEffect(() => {
         if(shipObj1.current && shipObj2.current) {
@@ -136,12 +140,41 @@ export default function Race() {
     }, [raceState, origin]);
 
     useEffect(() => {
-        const getShips = async() => {
+        const getData = async() => {
             const response = await fetchShips();
             setShipList(response);
+
+            driveList = await fetchDrives();
         }
-        getShips();
+        const setDefaultShips = () => {
+            setShip1("misc_starlancer_max");
+            setShip2("drake_corsair");
+        }
+
+        getData().then(setDefaultShips);
     }, []);
+
+    useEffect(() => {
+        const ship = shipList.find(s => s.id === ship1);
+
+        if(ship){
+            const validDrives = driveList.filter(d => d.size === ship.size);
+            setDriveList1(validDrives);
+            setDrive1(ship.default_drive);
+        }
+
+    }, [shipList, ship1]);
+
+    useEffect(() => {
+        const ship = shipList.find(s => s.id === ship2);
+
+        if(ship){
+            const validDrives = driveList.filter(d => d.size === ship.size);
+            setDriveList2(validDrives);
+            setDrive2(ship.default_drive);
+        }
+
+    }, [shipList, ship2]);
 
     return (
         <>
@@ -196,14 +229,14 @@ export default function Race() {
                         <h1 className={"text-white"}>Ship 1</h1>
                         <div className={"flex flex-col space-y-2"}>
                             <ShipsCombo value={ship1} setValue={setShip1} ships={shipList} disabled={Boolean(raceState)} />
-                            <DrivesCombo value={drive1} setValue={setDrive1} disabled={Boolean(raceState)} />
+                            <DrivesCombo value={drive1} setValue={setDrive1} drives={driveList1} disabled={Boolean(raceState)} />
                         </div>
                     </div>
                     <div className={"flex justify-center items-center space-x-3"}>
                         <h1 className={"text-white"}>Ship 2</h1>
                         <div className={"flex flex-col space-y-2"}>
                             <ShipsCombo value={ship2} setValue={setShip2} ships={shipList} disabled={Boolean(raceState)} />
-                            <DrivesCombo value={drive2} setValue={setDrive2} disabled={Boolean(raceState)} />
+                            <DrivesCombo value={drive2} setValue={setDrive2} drives={driveList2} disabled={Boolean(raceState)} />
                         </div>
                     </div>
                 </div>
