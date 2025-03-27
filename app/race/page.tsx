@@ -14,7 +14,7 @@ import {Label} from "@/components/ui/label";
 import clsx from "clsx";
 import {locations} from "@/components/locations";
 import {Objects} from "@/components/race-objects";
-import {fetchDrives, fetchShips} from "@/lib/db";
+import {getCachedDrives, getCachedShips} from "@/lib/db";
 import {Drive, Ship} from "@/lib/definitions";
 //import {driveList} from "@/components/drives";
 
@@ -141,10 +141,10 @@ export default function Race() {
 
     useEffect(() => {
         const getData = async() => {
-            const response = await fetchShips();
+            const response = await getCachedShips();
             setShipList(response);
 
-            driveList = await fetchDrives();
+            driveList = await getCachedDrives();
         }
         const setDefaultShips = () => {
             setShip1("misc_starlancer_max");
