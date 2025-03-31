@@ -7,7 +7,8 @@ import {Dispatch, SetStateAction, useState} from "react";
 import {Drive} from "@/lib/definitions";
 
 
-export default function DrivesCombo({value, setValue, drives, disabled}: {value: string, setValue: Dispatch<SetStateAction<string>>, drives: Drive[], disabled: boolean}) {
+export default function DrivesCombo({value, setValue, driveList, disabled}:
+    {value: string, setValue: Dispatch<SetStateAction<string>>, driveList: Drive[], disabled: boolean}) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -20,7 +21,7 @@ export default function DrivesCombo({value, setValue, drives, disabled}: {value:
                     className="w-[200px] justify-between"
                 >
                     {value
-                        ? drives.find((drive) => drive.id === value)?.name
+                        ? driveList.find((drive) => drive.id === value)?.name
                         : "Select drive..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -31,12 +32,13 @@ export default function DrivesCombo({value, setValue, drives, disabled}: {value:
                     <CommandList>
                         <CommandEmpty>No ships found.</CommandEmpty>
                         <CommandGroup>
-                            {drives.map((drive) => (
+                            {driveList.map((drive) => (
                                 <CommandItem
                                     key={drive.id}
                                     value={drive.id}
                                     onSelect={(currentValue) => {
-                                        setValue(currentValue === value ? "" : currentValue)
+                                        if(currentValue != value)
+                                            setValue(currentValue)
                                         setOpen(false)
                                     }}
                                 >

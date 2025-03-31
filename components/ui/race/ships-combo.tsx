@@ -1,4 +1,4 @@
-import {Dispatch, SetStateAction, useState} from "react";
+import {useState} from "react";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Button} from "@/components/ui/button";
 import {Check, ChevronsUpDown} from "lucide-react";
@@ -7,7 +7,9 @@ import {cn} from "@/lib/utils";
 import {Ship} from "@/lib/definitions";
 
 
-export default function ShipsCombo({value, setValue, ships, disabled}: {value: string, setValue: Dispatch<SetStateAction<string>>, ships: Array<Ship>, disabled: boolean}) {
+export default function ShipsCombo({value, onChange, shipList, disabled}:
+    {value: string, onChange: (currentValue: string) => void, shipList: Array<Ship>, disabled: boolean}) {
+
     const [open, setOpen] = useState(false);
 
     return (
@@ -20,7 +22,7 @@ export default function ShipsCombo({value, setValue, ships, disabled}: {value: s
                     className="w-[200px] justify-between"
                 >
                     {value
-                        ? ships.find((ship) => ship.id === value)?.name
+                        ? shipList.find((ship) => ship.id === value)?.name
                         : "Select ship..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -31,12 +33,13 @@ export default function ShipsCombo({value, setValue, ships, disabled}: {value: s
                     <CommandList>
                         <CommandEmpty>No ships found.</CommandEmpty>
                         <CommandGroup>
-                            {ships.map((ship) => (
+                            {shipList.map((ship) => (
                                 <CommandItem
                                     key={ship.id}
                                     value={ship.id}
                                     onSelect={(currentValue) => {
-                                        setValue(currentValue === value ? "" : currentValue)
+                                        if(currentValue != value)
+                                            onChange(currentValue)
                                         setOpen(false)
                                     }}
                                 >

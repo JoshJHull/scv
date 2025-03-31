@@ -44,6 +44,7 @@ const stage2accel = 0.017200;
 let accel = 0;
 let realSpeed = 0;
 
+let shipList: Ship[] = [];
 let driveList: Drive[] = [];
 
 const ShipRace = ({raceState, setRaceState, ship1Ref, ship2Ref, dest, setSpeedState, simRate}:
@@ -121,60 +122,63 @@ export default function Race() {
 
     const [raceState, setRaceState] = useState(raceStatus.stopped);
 
-    const [shipList, setShipList] = useState<Ship[]>([]);
     const [driveList1, setDriveList1] = useState<Drive[]>([]);
     const [driveList2, setDriveList2] = useState<Drive[]>([]);
 
     useEffect(() => {
-        if(shipObj1.current && shipObj2.current) {
-            if (raceState === raceStatus.stopped) {
-                shipObj1.current.position.x = locations[origin].x - 0.75;
-                shipObj1.current.position.y = 1.5;
-                shipObj1.current.position.z = locations[origin].z;
-
-                shipObj2.current.position.x = locations[origin].x + 0.75;
-                shipObj2.current.position.y = 1.5;
-                shipObj2.current.position.z = locations[origin].z;
-            }
-        }
-    }, [raceState, origin]);
-
-    useEffect(() => {
         const getData = async() => {
-            const response = await getCachedShips();
-            setShipList(response);
-
+            shipList = await getCachedShips();
             driveList = await getCachedDrives();
         }
         const setDefaultShips = () => {
-            setShip1("misc_starlancer_max");
-            setShip2("drake_corsair");
+            handleShip1("misc_starlancer_max");
+            handleShip2("drake_corsair");
         }
 
         getData().then(setDefaultShips);
     }, []);
 
-    useEffect(() => {
-        const ship = shipList.find(s => s.id === ship1);
+    const handleRaceOrigin = (locID: string) => {
+        setOrigin(locID);
+
+        if(shipObj1.current && shipObj2.current) {
+            if (raceState === raceStatus.stopped) {
+                shipObj1.current.position.x = locations[locID].x - 0.75;
+                shipObj1.current.position.y = 1.5;
+                shipObj1.current.position.z = locations[locID].z;
+
+                shipObj2.current.position.x = locations[locID].x + 0.75;
+                shipObj2.current.position.y = 1.5;
+                shipObj2.current.position.z = locations[locID].z;
+            }
+        }
+    }
+
+    const handleRaceDest = (locID: string) => {
+        setDest(locID);
+    }
+
+    const handleShip1 = (shipID: string) => {
+        const ship = shipList.find(s => s.id === shipID);
 
         if(ship){
+            setShip1(shipID)
             const validDrives = driveList.filter(d => d.size === ship.size);
             setDriveList1(validDrives);
             setDrive1(ship.default_drive);
         }
+    }
 
-    }, [shipList, ship1]);
-
-    useEffect(() => {
-        const ship = shipList.find(s => s.id === ship2);
+    const handleShip2 = (shipID: string) => {
+        const ship = shipList.find(s => s.id === shipID);
 
         if(ship){
+            setShip2(shipID)
             const validDrives = driveList.filter(d => d.size === ship.size);
             setDriveList2(validDrives);
             setDrive2(ship.default_drive);
         }
-
-    }, [shipList, ship2]);
+    }
 
     return (
         <>
@@ -192,11 +196,11 @@ export default function Race() {
                     <div className={"flex justify-center items-center space-x-3"}>
                         <div className={"flex flex-col space-y-2"}>
                             <h1 className={"text-white"}>Origin</h1>
-                            <LocCombo value={origin} setValue={setOrigin} disabled={Boolean(raceState)} />
+                            <LocCombo value={origin} setValue={setOrigin} onChange={handleRaceOrigin} disabled={Boolean(raceState)} />
                         </div>
                         <div className={"flex flex-col space-y-2"}>
                             <h1 className={"text-white"}>Destination</h1>
-                            <LocCombo value={dest} setValue={setDest} disabled={Boolean(raceState)} />
+                            <LocCombo value={dest} setValue={setDest} onChange={handleRaceDest} disabled={Boolean(raceState)} />
                         </div>
                     </div>
                     <div className={"flex justify-center items-center space-x-3"}>
@@ -228,15 +232,15 @@ export default function Race() {
                     <div className={"flex justify-center items-center space-x-3"}>
                         <h1 className={"text-white"}>Ship 1</h1>
                         <div className={"flex flex-col space-y-2"}>
-                            <ShipsCombo value={ship1} setValue={setShip1} ships={shipList} disabled={Boolean(raceState)} />
-                            <DrivesCombo value={drive1} setValue={setDrive1} drives={driveList1} disabled={Boolean(raceState)} />
+                            <ShipsCombo value={ship1} shipList={shipList} disabled={Boolean(raceState)} onChange={handleShip1} />
+                            <DrivesCombo value={drive1} setValue={setDrive1} driveList={driveList1} disabled={Boolean(raceState)} />
                         </div>
                     </div>
                     <div className={"flex justify-center items-center space-x-3"}>
                         <h1 className={"text-white"}>Ship 2</h1>
                         <div className={"flex flex-col space-y-2"}>
-                            <ShipsCombo value={ship2} setValue={setShip2} ships={shipList} disabled={Boolean(raceState)} />
-                            <DrivesCombo value={drive2} setValue={setDrive2} drives={driveList2} disabled={Boolean(raceState)} />
+                            <ShipsCombo value={ship2} shipList={shipList} disabled={Boolean(raceState)} onChange={handleShip2}/>
+                            <DrivesCombo value={drive2} setValue={setDrive2} driveList={driveList2} disabled={Boolean(raceState)} />
                         </div>
                     </div>
                 </div>

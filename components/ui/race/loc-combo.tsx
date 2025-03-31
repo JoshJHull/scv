@@ -6,7 +6,8 @@ import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandL
 import {cn} from "@/lib/utils";
 
 
-export default function LocCombo({value, setValue, disabled}: {value: string, setValue: Dispatch<SetStateAction<string>>, disabled: boolean}) {
+export default function LocCombo({value, onChange, disabled}:
+{value: string, onChange: (currentValue: string) => void, setValue: Dispatch<SetStateAction<string>>, disabled: boolean}) {
     const [open, setOpen] = useState(false);
 
     const locations = [
@@ -54,8 +55,8 @@ export default function LocCombo({value, setValue, disabled}: {value: string, se
                                     key={route.value}
                                     value={route.value}
                                     onSelect={(currentValue) => {
-                                        setValue(currentValue)
-                                        setOpen(false)
+                                        onChange(currentValue);
+                                        setOpen(false);
                                     }}
                                 >
                                     <Check
