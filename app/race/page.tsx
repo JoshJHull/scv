@@ -48,7 +48,10 @@ let shipList: Ship[] = [];
 let driveList: Drive[] = [];
 
 const ShipRace = ({raceState, setRaceState, ship1Ref, ship2Ref, dest, setSpeedState, simRate}:
-                   {raceState: raceStatus, setRaceState: Dispatch<SetStateAction<raceStatus>>, ship1Ref: RefObject<Mesh>, ship2Ref: RefObject<Mesh>, dest: Vector3, setSpeedState: Dispatch<SetStateAction<number>>, simRate: number}) => {
+                  {raceState: raceStatus, setRaceState: Dispatch<SetStateAction<raceStatus>>,
+                       ship1Ref: RefObject<Mesh>, ship2Ref: RefObject<Mesh>, dest: Vector3,
+                       setSpeedState: Dispatch<SetStateAction<number>>, simRate: number}) => {
+
     const accelLength = 2 * driveSpeed / (stage1accel + stage2accel);
     const accelRate = (stage2accel - stage1accel) / accelLength;
 
@@ -63,14 +66,13 @@ const ShipRace = ({raceState, setRaceState, ship1Ref, ship2Ref, dest, setSpeedSt
 
         if(raceState === raceStatus.running) {
             //ship1
-            if(realSpeed != driveSpeed) {
+            if(realSpeed >= driveSpeed) {
+                accel = 0;
+                realSpeed = driveSpeed;
+            }
+            else {
                 accel += (accelRate * delta * simRate);
                 realSpeed += (accel * delta * simRate);
-
-            }
-            if(realSpeed >= driveSpeed){
-                realSpeed = driveSpeed;
-                accel = 0;
             }
             speed = realSpeed * delta * simRate;
             forwardVector = forwardVector.subVectors(destination, ship1Ref.current.position).normalize();
@@ -140,20 +142,28 @@ export default function Race() {
         getData().then(setDefaultShips);
     }, []);
 
+    const handleRaceReset = () => {
+        setRaceState(raceStatus.stopped);
+
+        shipObj1.current.position.x = locations[origin].x - 0.75;
+        shipObj1.current.position.y = 1.5;
+        shipObj1.current.position.z = locations[origin].z;
+
+        shipObj2.current.position.x = locations[origin].x + 0.75;
+        shipObj2.current.position.y = 1.5;
+        shipObj2.current.position.z = locations[origin].z;
+    }
+
     const handleRaceOrigin = (locID: string) => {
         setOrigin(locID);
 
-        if(shipObj1.current && shipObj2.current) {
-            if (raceState === raceStatus.stopped) {
-                shipObj1.current.position.x = locations[locID].x - 0.75;
-                shipObj1.current.position.y = 1.5;
-                shipObj1.current.position.z = locations[locID].z;
+        shipObj1.current.position.x = locations[locID].x - 0.75;
+        shipObj1.current.position.y = 1.5;
+        shipObj1.current.position.z = locations[locID].z;
 
-                shipObj2.current.position.x = locations[locID].x + 0.75;
-                shipObj2.current.position.y = 1.5;
-                shipObj2.current.position.z = locations[locID].z;
-            }
-        }
+        shipObj2.current.position.x = locations[locID].x + 0.75;
+        shipObj2.current.position.y = 1.5;
+        shipObj2.current.position.z = locations[locID].z;
     }
 
     const handleRaceDest = (locID: string) => {
@@ -218,7 +228,7 @@ export default function Race() {
                                         <Pause />
                                     </Button>
                             }
-                            <Button onClick={() => setRaceState(raceStatus.stopped)} disabled={!Boolean(raceState)}
+                            <Button onClick={handleRaceReset} disabled={!Boolean(raceState)}
                                     className={"text-white rounded-l-none bg-red-500 hover:text-white hover:bg-red-600"}>
                                 <RotateCcw />
                             </Button>
