@@ -15,7 +15,7 @@ import clsx from "clsx";
 import {locations} from "@/components/locations";
 import {Objects} from "@/components/race-objects";
 import {getCachedDrives, getCachedShips} from "@/lib/db";
-import {Drive, Ship} from "@/lib/definitions";
+import {Drive, Nullable, Ship} from "@/lib/definitions";
 //import {driveList} from "@/components/drives";
 
 //const MotionButton = motion.create(Button);
@@ -110,10 +110,10 @@ export default function Race() {
     const [nameVis, setNameVis] = useState(true);
     const [simRate, setSimRate] = useState(1);
 
-    const [ship1, setShip1] = useState("");
-    const [drive1, setDrive1] = useState("");
-    const [ship2, setShip2] = useState("");
-    const [drive2, setDrive2] = useState("");
+    const [ship1, setShip1] = useState<Nullable<Ship>>();
+    const [drive1, setDrive1] = useState<Nullable<Drive>>();
+    const [ship2, setShip2] = useState<Nullable<Ship>>();
+    const [drive2, setDrive2] = useState<Nullable<Drive>>();
     const [origin, setOrigin] = useState("microtech");
     const [dest, setDest] = useState("hurston");
 
@@ -131,8 +131,10 @@ export default function Race() {
             driveList = await getCachedDrives();
         }
         const setDefaultShips = () => {
-            handleShip1("misc_starlancer_max");
-            handleShip2("drake_corsair");
+            const default1 = shipList.find(s => s.id === "misc_starlancer_max");
+            const default2 = shipList.find(s => s.id === "drake_corsair");
+            handleShip1(default1);
+            handleShip2(default2);
         }
 
         getData().then(setDefaultShips);
@@ -158,25 +160,23 @@ export default function Race() {
         setDest(locID);
     }
 
-    const handleShip1 = (shipID: string) => {
-        const ship = shipList.find(s => s.id === shipID);
-
+    const handleShip1 = (ship: Nullable<Ship>) => {
         if(ship){
-            setShip1(shipID)
+            setShip1(ship);
             const validDrives = driveList.filter(d => d.size === ship.size);
             setDriveList1(validDrives);
-            setDrive1(ship.default_drive);
+            const defaultDrive = driveList.find(d => d.id === ship.default_drive);
+            setDrive1(defaultDrive);
         }
     }
 
-    const handleShip2 = (shipID: string) => {
-        const ship = shipList.find(s => s.id === shipID);
-
+    const handleShip2 = (ship: Nullable<Ship>) => {
         if(ship){
-            setShip2(shipID)
+            setShip2(ship);
             const validDrives = driveList.filter(d => d.size === ship.size);
             setDriveList2(validDrives);
-            setDrive2(ship.default_drive);
+            const defaultDrive = driveList.find(d => d.id === ship.default_drive);
+            setDrive2(defaultDrive);
         }
     }
 

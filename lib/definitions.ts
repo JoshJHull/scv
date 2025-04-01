@@ -1,3 +1,5 @@
+export type Nullable<T> = T | null | undefined;
+
 export type Ship = {
     id: string,
     name: string,

@@ -4,11 +4,11 @@ import {Button} from "@/components/ui/button";
 import {Check, ChevronsUpDown} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {cn} from "@/lib/utils";
-import {Ship} from "@/lib/definitions";
+import {Nullable, Ship} from "@/lib/definitions";
 
 
 export default function ShipsCombo({value, onChange, shipList, disabled}:
-    {value: string, onChange: (currentValue: string) => void, shipList: Array<Ship>, disabled: boolean}) {
+    {value: Nullable<Ship>, onChange: (newShip: Nullable<Ship>) => void, shipList: Array<Ship>, disabled: boolean}) {
 
     const [open, setOpen] = useState(false);
 
@@ -22,7 +22,7 @@ export default function ShipsCombo({value, onChange, shipList, disabled}:
                     className="w-[200px] justify-between"
                 >
                     {value
-                        ? shipList.find((ship) => ship.id === value)?.name
+                        ? shipList.find((ship) => ship.id === value.id)?.name
                         : "Select ship..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -38,15 +38,15 @@ export default function ShipsCombo({value, onChange, shipList, disabled}:
                                     key={ship.id}
                                     value={ship.id}
                                     onSelect={(currentValue) => {
-                                        if(currentValue != value)
-                                            onChange(currentValue)
+                                        if(currentValue != value?.id)
+                                            onChange(ship)
                                         setOpen(false)
                                     }}
                                 >
                                     <Check
                                         className={cn(
                                             "mr-2 h-4 w-4",
-                                            value === ship.id ? "opacity-100" : "opacity-0"
+                                            value?.id === ship.id ? "opacity-100" : "opacity-0"
                                         )}
                                     />
                                     {ship.name}

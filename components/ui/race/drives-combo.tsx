@@ -4,11 +4,11 @@ import {Check, ChevronsUpDown} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {cn} from "@/lib/utils";
 import {Dispatch, SetStateAction, useState} from "react";
-import {Drive} from "@/lib/definitions";
+import {Drive, Nullable} from "@/lib/definitions";
 
 
 export default function DrivesCombo({value, setValue, driveList, disabled}:
-    {value: string, setValue: Dispatch<SetStateAction<string>>, driveList: Drive[], disabled: boolean}) {
+    {value: Nullable<Drive>, setValue: Dispatch<SetStateAction<Nullable<Drive>>>, driveList: Drive[], disabled: boolean}) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -21,7 +21,7 @@ export default function DrivesCombo({value, setValue, driveList, disabled}:
                     className="w-[200px] justify-between"
                 >
                     {value
-                        ? driveList.find((drive) => drive.id === value)?.name
+                        ? driveList.find((drive) => drive.id === value.id)?.name
                         : "Select drive..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -37,15 +37,15 @@ export default function DrivesCombo({value, setValue, driveList, disabled}:
                                     key={drive.id}
                                     value={drive.id}
                                     onSelect={(currentValue) => {
-                                        if(currentValue != value)
-                                            setValue(currentValue)
+                                        if(currentValue != value?.id)
+                                            setValue(drive)
                                         setOpen(false)
                                     }}
                                 >
                                     <Check
                                         className={cn(
                                             "mr-2 h-4 w-4",
-                                            value === drive.id ? "opacity-100" : "opacity-0"
+                                            value?.id === drive.id ? "opacity-100" : "opacity-0"
                                         )}
                                     />
                                     {drive.name}
