@@ -1,9 +1,9 @@
 "use client";
 
-import {Canvas, useFrame} from "@react-three/fiber";
+import {Canvas} from "@react-three/fiber";
 import {OrbitControls, Stars} from "@react-three/drei";
-import {Dispatch, RefObject, SetStateAction, useEffect, useRef, useState} from "react";
-import {Mesh, Vector3} from "three";
+import {useEffect, useRef, useState} from "react";
+import {Mesh} from "three";
 import {Button} from "@/components/ui/button";
 import ShipsCombo from "@/components/ui/race/ships-combo";
 import DrivesCombo from "@/components/ui/race/drives-combo";
@@ -15,95 +15,17 @@ import clsx from "clsx";
 import {locations} from "@/components/locations";
 import {Objects} from "@/components/race-objects";
 import {getCachedDrives, getCachedShips} from "@/lib/db";
-import {Drive, Nullable, Ship} from "@/lib/definitions";
-//import {driveList} from "@/components/drives";
+import {Drive, Nullable, raceStatus, Ship} from "@/lib/definitions";
+import RaceLogic, {raceInit} from "@/components/race-logic";
 
 //const MotionButton = motion.create(Button);
 
 //const degToRad = (deg: number) => (deg * Math.PI) / 180;
 
-enum raceStatus {
-    stopped,
-    running,
-    paused,
-}
 
-/*enum jumpPhase {
-    accel,
-    cruise,
-    decel,
-    complete,
-}*/
-
-const driveSpeed = 0.171;
-//const fuelUse = 0.016;
-//const fuelCap = 3.6;
-const stage1accel = 0.003450;
-const stage2accel = 0.017200;
-
-let accel = 0;
-let realSpeed = 0;
 
 let shipList: Ship[] = [];
 let driveList: Drive[] = [];
-
-const ShipRace = ({raceState, setRaceState, ship1Ref, ship2Ref, dest, setSpeedState, simRate}:
-                  {raceState: raceStatus, setRaceState: Dispatch<SetStateAction<raceStatus>>,
-                       ship1Ref: RefObject<Mesh>, ship2Ref: RefObject<Mesh>, dest: Vector3,
-                       setSpeedState: Dispatch<SetStateAction<number>>, simRate: number}) => {
-
-    const accelLength = 2 * driveSpeed / (stage1accel + stage2accel);
-    const accelRate = (stage2accel - stage1accel) / accelLength;
-
-    accel = stage1accel;
-
-    const destination = dest.clone();
-    destination.setY(destination.y + 1);
-    let forwardVector = new Vector3(0,0,0);
-    let speed = 0;
-
-    useFrame((_state, delta) => {
-
-        if(raceState === raceStatus.running) {
-            //ship1
-            if(realSpeed >= driveSpeed) {
-                accel = 0;
-                realSpeed = driveSpeed;
-            }
-            else {
-                accel += (accelRate * delta * simRate);
-                realSpeed += (accel * delta * simRate);
-            }
-            speed = realSpeed * delta * simRate;
-            forwardVector = forwardVector.subVectors(destination, ship1Ref.current.position).normalize();
-            if(ship1Ref.current.position.equals(destination)) {
-                setRaceState(raceStatus.paused);
-            }
-            ship1Ref.current.position.x += forwardVector.x * speed;
-            ship1Ref.current.position.y += forwardVector.y * speed;
-            ship1Ref.current.position.z += forwardVector.z * speed;
-
-            //ship2
-            ship2Ref.current.position.x += 0;
-        }
-        if(raceState === raceStatus.stopped) {
-            accel = 0;
-            realSpeed = 0;
-            speed = 0;
-        }
-    });
-
-    useEffect(() => {
-        const interval = setInterval(() => setSpeedState(realSpeed), 100);
-        return () => {
-            clearInterval(interval);
-        }
-    });
-
-    return (
-        <></>
-    )
-}
 
 export default function Race() {
     const shipObj1 = useRef<Mesh>(null!);
@@ -120,7 +42,7 @@ export default function Race() {
     const [dest, setDest] = useState("hurston");
 
     //const [jumpState, setJumpState] = useState(jumpPhase.accel);
-    const [speedState, setSpeedState] = useState(0);
+    const [speedState, setSpeedState] = useState<number[]>([0,0]);
 
     const [raceState, setRaceState] = useState(raceStatus.stopped);
 
@@ -197,7 +119,7 @@ export default function Race() {
                     <Canvas camera={{fov: 60, position:[0,80,0]}}>
                         <Objects ship1={shipObj1} ship2={shipObj2} speedState={speedState} nameVis={nameVis}/>
                         <Stars fade speed={0} />
-                        <ShipRace raceState={raceState} setRaceState={setRaceState} ship1Ref={shipObj1} ship2Ref={shipObj2}
+                        <RaceLogic raceState={raceState} setRaceState={setRaceState} ship1Ref={shipObj1} ship2Ref={shipObj2}
                                   dest={locations[dest]} setSpeedState={setSpeedState} simRate={simRate}/>
                         <OrbitControls/>
                     </Canvas>
@@ -219,6 +141,8 @@ export default function Race() {
                                 (raceState != raceStatus.running) ?
                                     <Button onClick={() => {
                                         setRaceState(raceStatus.running)
+                                        if(ship1 && ship2 && drive1 && drive2)
+                                            raceInit(ship1, ship2, drive1, drive2, locations[dest]);
                                     }} className={"text-white rounded-r-none bg-green-500 hover:text-white hover:bg-green-600"}>
                                         <Play />
                                     </Button>

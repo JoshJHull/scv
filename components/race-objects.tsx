@@ -4,7 +4,7 @@ import {Html, Line} from "@react-three/drei";
 import {locations} from "@/components/locations";
 
 export const Objects = ({ship1, ship2, speedState, nameVis}:
-                 {ship1: RefObject<Mesh>, ship2: RefObject<Mesh>, speedState: number, nameVis: boolean}) => {
+                 {ship1: RefObject<Mesh>, ship2: RefObject<Mesh>, speedState: number[], nameVis: boolean}) => {
 
     const microtechOrbit = useMemo(() => {
         return new EllipseCurve(0,0, 43.443,43.443, 0,2 * Math.PI, false, 0).getPoints(150).map((point) =>
@@ -78,14 +78,14 @@ export const Objects = ({ship1, ship2, speedState, nameVis}:
                 <sphereGeometry args={[0.5, 64, 32]} />
                 <meshStandardMaterial color={0xff0000} />
                 <Html>
-                    <div className={"text-white w-20"}>{(speedState * 1000).toFixed(0)}</div>
+                    <div className={"text-white w-20"}>{(speedState[0] * 1000).toFixed(0)}</div>
                 </Html>
             </mesh>
             <mesh position={[22.462 + 0.75, 1.5, -37.186]} ref={ship2}>
                 <sphereGeometry args={[0.5, 64, 32]} />
                 <meshStandardMaterial color={0x0000fc} />
                 <Html>
-                    <div className={"text-white w-20"}>{(speedState * 1000).toFixed(0)}</div>
+                    <div className={"text-white w-20"}>{(speedState[1] * 1000).toFixed(0)}</div>
                 </Html>
             </mesh>
         </>

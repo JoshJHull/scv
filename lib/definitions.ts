@@ -17,3 +17,16 @@ export type Drive = {
     stage2: number,
     size: number
 };
+
+export enum raceStatus {
+    stopped,
+    running,
+    paused,
+}
+
+/*export enum jumpPhase {
+    accel,
+    cruise,
+    decel,
+    complete,
+}*/
