@@ -141,7 +141,7 @@ export default function Race() {
                                 (raceState != raceStatus.running) ?
                                     <Button onClick={() => {
                                         setRaceState(raceStatus.running)
-                                        if(ship1 && ship2 && drive1 && drive2)
+                                        if(ship1 && ship2 && drive1 && drive2 && raceState == raceStatus.stopped)
                                             raceInit(ship1, ship2, drive1, drive2, locations[dest]);
                                     }} className={"text-white rounded-r-none bg-green-500 hover:text-white hover:bg-green-600"}>
                                         <Play />
@@ -159,8 +159,8 @@ export default function Race() {
                         </div>
                         <div className={"flex flex-nowrap"}>
                             <Button onClick={() => setSimRate(1)} className={clsx("rounded-r-none", {"bg-neutral-400": simRate == 1})}>1x</Button>
-                            <Button onClick={() => setSimRate(2)} className={clsx("rounded-l-none rounded-r-none", {"text-white bg-gray-400": simRate == 2})}>2x</Button>
-                            <Button onClick={() => setSimRate(4)} className={clsx("rounded-l-none", {"text-white bg-gray-400": simRate == 4})}>4x</Button>
+                            <Button onClick={() => setSimRate(4)} className={clsx("rounded-l-none rounded-r-none", {"text-white bg-gray-400": simRate == 4})}>4x</Button>
+                            <Button onClick={() => setSimRate(8)} className={clsx("rounded-l-none", {"text-white bg-gray-400": simRate == 8})}>8x</Button>
                         </div>
                     </div>
                     <div className={"flex justify-center items-center space-x-3"}>
