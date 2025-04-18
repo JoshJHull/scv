@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Button} from "@/components/ui/button";
-import {Check, ChevronsUpDown} from "lucide-react";
+import {Check, ChevronDown, ChevronUp} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {cn} from "@/lib/utils";
 import {Nullable, Ship} from "@/lib/definitions";
@@ -24,8 +24,20 @@ export default function ShipsCombo({value, onChange, shipList, disabled}:
                     {value
                         ? shipList.find((ship) => ship.id === value.id)?.name
                         : "Select ship..."}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    {open
+                        ? <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
+                        : <ChevronUp className="ml-2 h-4 w-4 shrink-0 opacity-50"/>}
                 </Button>
+                {/*<svg width={"200"} height={"40"}>
+                    <path d="
+                        M 10 0
+                        L 200 0
+                        L 190 40
+                        L 0 40
+                        Z"
+                        stroke="#007BFF"
+                        fillOpacity="0"/>
+                </svg>*/}
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
                 <Command>

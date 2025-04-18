@@ -11,15 +11,15 @@ const nextConfig: NextConfig = {
         return config;
     },
 
-    experimental: {
-        turbo: {
-            rules: {
-                '*.svg': {
-                    loaders: ['@svgr/webpack'],
-                    as: '*.js'
-                }
-            },
-        }
+    devIndicators: false,
+
+    turbopack: {
+        rules: {
+            '*.svg': {
+                loaders: ['@svgr/webpack'],
+                as: '*.js'
+            }
+        },
     },
 
     transpilePackages: ['three'],

@@ -8,10 +8,12 @@ type ShipContainer = {
   driveStats: Drive;
   speed: number;
   accel: number;
-  accelLength: number;
+  accelTime: number;
   accelRate: number;
   moving: boolean;
   forwardVec: Vector3;
+  totalTime: number;
+  elapsedTime: number;
   firstCalc: boolean;
 };
 
@@ -51,15 +53,16 @@ export default function RaceLogic({raceState, setRaceState, ship1Ref, ship2Ref, 
                 if(timeSinceUpdate >= 0.2) {
                     setSpeedState([ship1.speed, ship2.speed]);
                     timeSinceUpdate = 0;
+                    console.log(ship1.accel);
                 }
                 else {
                     timeSinceUpdate += delta;
                 }
             }
             if (raceState === raceStatus.stopped) {
-                ship1.accel = 0;
+                ship1.accel = (+ship1.driveStats.stage1);
                 ship1.speed = 0;
-                ship2.accel = 0;
+                ship2.accel = (+ship2.driveStats.stage1);
                 ship2.speed = 0;
                 moveSpeed = 0;
                 setSpeedState([ship1.speed, ship2.speed]);
@@ -74,7 +77,8 @@ export default function RaceLogic({raceState, setRaceState, ship1Ref, ship2Ref, 
 
 const raceCalc = (ship: ShipContainer, dest: Vector3, shipRef: RefObject<Mesh>, simRate: number, delta: number) => {
     tempVec.subVectors(dest, shipRef.current.position).normalize();
-    //console.log(ship.forwardVec.angleTo(tempVec));
+
+    ship.elapsedTime += delta * simRate;
 
     if (ship.firstCalc) {
         ship.forwardVec = tempVec.clone();
@@ -87,54 +91,31 @@ const raceCalc = (ship: ShipContainer, dest: Vector3, shipRef: RefObject<Mesh>, 
 
         ship.moving = false;
         ship.firstCalc = true;
+        console.log(ship.elapsedTime);
     }
     else {
-        if (ship.speed >= ship.driveStats.speed) {
-            ship.accel = 0;
-            ship.speed = ship.driveStats.speed;
-        } else {
+        if (ship.elapsedTime > ship.totalTime - ship.accelTime) {
+            ship.accel -= (ship.accelRate * delta * simRate);
+            ship.speed -= (ship.accel * delta * simRate);
+        }
+        else if (ship.speed < ship.driveStats.speed) {
             ship.accel += (ship.accelRate * delta * simRate);
             ship.speed += (ship.accel * delta * simRate);
         }
+        else {
+            ship.accel = ship.driveStats.stage2;
+            ship.speed = ship.driveStats.speed;
+        }
+
         moveSpeed = ship.speed * delta * simRate;
-        //blah
         shipRef.current.position.x += ship.forwardVec.x * moveSpeed;
         shipRef.current.position.y += ship.forwardVec.y * moveSpeed;
         shipRef.current.position.z += ship.forwardVec.z * moveSpeed;
     }
 }
 
-export const raceInit = (newShip1: Ship, newShip2: Ship, newDrive1: Drive, newDrive2: Drive, dest: Vector3) => {
-    let accelLength = 2 * newDrive1.speed / ((+newDrive1.stage1) + (+newDrive1.stage2));
-    let accelRate = (newDrive1.stage2 - newDrive1.stage1) / accelLength;
-
-    ship1 = {
-        shipStats: newShip1,
-        driveStats: newDrive1,
-        speed: 0,
-        accel: 0,
-        accelLength: accelLength,
-        accelRate: accelRate,
-        moving: true,
-        forwardVec: new Vector3(0,0,0),
-        firstCalc: true
-    };
-
-    accelLength = 2 * newDrive2.speed / ((+newDrive2.stage1) + (+newDrive2.stage2));
-    accelRate = (newDrive2.stage2 - newDrive2.stage1) / accelLength;
-
-    ship2 = {
-        shipStats: newShip2,
-        driveStats: newDrive2,
-        speed: 0,
-        accel: 0,
-        accelLength: accelLength,
-        accelRate: accelRate,
-        moving: true,
-        forwardVec: new Vector3(0,0,0),
-        firstCalc: true
-    };
-
+export const raceInit = (newShip1: Ship, newShip2: Ship, newDrive1: Drive, newDrive2: Drive, dest: Vector3,
+                         ship1Ref: RefObject<Mesh>, ship2Ref: RefObject<Mesh>) => {
     ship1Dest = dest.clone();
     ship1Dest.setX(ship1Dest.x - 0.75);
     ship1Dest.setY(ship1Dest.y + 1.5);
@@ -142,4 +123,49 @@ export const raceInit = (newShip1: Ship, newShip2: Ship, newDrive1: Drive, newDr
     ship2Dest = dest.clone();
     ship2Dest.setX(ship2Dest.x + 0.75);
     ship2Dest.setY(ship2Dest.y + 1.5);
+
+    let accelLength = 2 * newDrive1.speed / ((+newDrive1.stage1) + (+newDrive1.stage2));
+    let accelRate = (newDrive1.stage2 - newDrive1.stage1) / accelLength;
+    let accelTime = (2 * newDrive1.speed) / ((+newDrive1.stage1) + (+newDrive1.stage2));
+    let cruiseTime = (ship1Ref.current.position.distanceTo(ship1Dest) / newDrive1.speed) -
+        (4 * (newDrive1.speed * (2 * newDrive1.stage1 + (+newDrive1.stage2)))) / (3 * (((+newDrive1.stage1) + (+newDrive1.stage2))*((+newDrive1.stage1) + (+newDrive1.stage2))));
+    let totalTime = (2 * accelTime) +  cruiseTime;
+    console.log(accelTime);
+    console.log(cruiseTime);
+    console.log(ship1Ref.current.position.distanceTo(ship1Dest));
+
+    ship1 = {
+        shipStats: newShip1,
+        driveStats: newDrive1,
+        speed: 0,
+        accel: (+newDrive1.stage1),
+        accelRate: accelRate,
+        accelTime: accelTime,
+        moving: true,
+        forwardVec: new Vector3(0,0,0),
+        totalTime: totalTime,
+        elapsedTime: 0,
+        firstCalc: true
+    };
+
+    accelLength = 2 * newDrive2.speed / ((+newDrive2.stage1) + (+newDrive2.stage2));
+    accelRate = (newDrive2.stage2 - newDrive2.stage1) / accelLength;
+    accelTime = (2 * newDrive2.speed) / ((+newDrive2.stage1) + (+newDrive2.stage2));
+    cruiseTime = (ship2Ref.current.position.distanceTo(ship2Dest) / newDrive2.speed) -
+        (4 * (newDrive2.speed * (2 * newDrive2.stage1 + (+newDrive2.stage2)))) / (3 * (((+newDrive2.stage1) + (+newDrive2.stage2))*((+newDrive2.stage1) + (+newDrive2.stage2))));
+    totalTime = (2 * accelTime) +  cruiseTime;
+
+    ship2 = {
+        shipStats: newShip2,
+        driveStats: newDrive2,
+        speed: 0,
+        accel: (+newDrive2.stage1),
+        accelRate: accelRate,
+        accelTime: accelTime,
+        moving: true,
+        forwardVec: new Vector3(0,0,0),
+        totalTime: totalTime,
+        elapsedTime: 0,
+        firstCalc: true
+    };
 }

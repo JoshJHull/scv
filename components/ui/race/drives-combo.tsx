@@ -1,6 +1,6 @@
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Button} from "@/components/ui/button";
-import {Check, ChevronsUpDown} from "lucide-react";
+import {Check, ChevronDown, ChevronUp} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {cn} from "@/lib/utils";
 import {Dispatch, SetStateAction, useState} from "react";
@@ -23,7 +23,9 @@ export default function DrivesCombo({value, setValue, driveList, disabled}:
                     {value
                         ? driveList.find((drive) => drive.id === value.id)?.name
                         : "Select drive..."}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    {open
+                        ? <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
+                        : <ChevronUp className="ml-2 h-4 w-4 shrink-0 opacity-50"/>}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
