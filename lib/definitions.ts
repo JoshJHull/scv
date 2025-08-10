@@ -23,10 +23,3 @@ export enum raceStatus {
     running,
     paused,
 }
-
-/*export enum jumpPhase {
-    accel,
-    cruise,
-    decel,
-    complete,
-}*/

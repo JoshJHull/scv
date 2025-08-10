@@ -24,7 +24,6 @@ import {AnimatePresence, motion} from "motion/react"
 //const degToRad = (deg: number) => (deg * Math.PI) / 180;
 
 
-
 let shipList: Ship[] = [];
 let driveList: Drive[] = [];
 
@@ -42,8 +41,8 @@ export default function Race() {
     const [origin, setOrigin] = useState("microtech");
     const [dest, setDest] = useState("hurston");
 
-    //const [jumpState, setJumpState] = useState(jumpPhase.accel);
-    const [speedState, setSpeedState] = useState<number[]>([0,0]);
+    const [speedStates, setSpeedStates] = useState<number[]>([0,0]);
+    const [phaseStates, setPhaseStates] = useState<string[]>(["Accelerating", "Accelerating"]);
 
     const [raceState, setRaceState] = useState(raceStatus.stopped);
     const [racePanel, setRacePanel] = useState(false);
@@ -122,7 +121,8 @@ export default function Race() {
                     <Objects ship1={shipObj1} ship2={shipObj2} nameVis={nameVis}/>
                     <Stars fade speed={0} />
                     <RaceLogic raceState={raceState} setRaceState={setRaceState} ship1Ref={shipObj1} ship2Ref={shipObj2}
-                              dest={locations[dest]} setSpeedState={setSpeedState} simRate={simRate}/>
+                               dest={locations[dest]} setSpeedStates={setSpeedStates} phaseStates={phaseStates} setPhaseStates={setPhaseStates}
+                               simRate={simRate}/>
                     <OrbitControls/>
                 </Canvas>
             </div>
@@ -201,8 +201,9 @@ export default function Race() {
                             {ship1?.name}
                             <div className={"flex gap-2"}>
                                 <Gauge color="#ffffff" />
-                                {(speedState[0] * 1000000).toFixed(0)} km/s
+                                {(speedStates[0] * 1000000).toFixed(0)} km/s
                             </div>
+                            {phaseStates[0]}
 
                         </motion.div>
                         : <motion.div className={"flex flex-col space-y-2"}
@@ -234,8 +235,10 @@ export default function Race() {
                             {ship2?.name}
                             <div className={"flex gap-2"}>
                                 <Gauge color="#ffffff" />
-                                {(speedState[1] * 1000000).toFixed(0)} km/s
+                                {(speedStates[1] * 1000000).toFixed(0)} km/s
                             </div>
+                            {phaseStates[1]}
+
                         </motion.div>
                         : <motion.div className={"flex flex-col space-y-2"}
                             key={`${racePanel}`}

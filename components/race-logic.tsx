@@ -15,6 +15,7 @@ type ShipContainer = {
   totalTime: number;
   elapsedTime: number;
   firstCalc: boolean;
+  phase: string;
 };
 
 let ship1: ShipContainer;
@@ -28,13 +29,15 @@ const tempVec = new Vector3(0,0,0);
 let moveSpeed = 0;
 let timeSinceUpdate = 0;
 
-export default function RaceLogic({raceState, setRaceState, ship1Ref, ship2Ref, setSpeedState, simRate}:
+export default function RaceLogic({raceState, setRaceState, ship1Ref, ship2Ref, setSpeedStates, phaseStates, setPhaseStates, simRate}:
                   {raceState: raceStatus, setRaceState: Dispatch<SetStateAction<raceStatus>>,
                       ship1Ref: RefObject<Mesh>, ship2Ref: RefObject<Mesh>, dest: Vector3,
-                      setSpeedState: Dispatch<SetStateAction<number[]>>, simRate: number}) {
+                      setSpeedStates: Dispatch<SetStateAction<number[]>>,
+                      phaseStates: string[], setPhaseStates: Dispatch<SetStateAction<string[]>>,
+                      simRate: number}) {
 
     useFrame((_state, delta) => {
-        if(ship1 && ship2) {
+        if (ship1 && ship2) {
             if (raceState === raceStatus.running) {
                 if (ship1.moving) {
                     raceCalc(ship1, ship1Dest, ship1Ref, simRate, delta);
@@ -46,14 +49,18 @@ export default function RaceLogic({raceState, setRaceState, ship1Ref, ship2Ref, 
                 //pause if both at dest
                 if (!ship1.moving && !ship2.moving) {
                     setRaceState(raceStatus.paused);
-                    console.log("race finished");
+
+                    setSpeedStates([ship1.speed, ship2.speed]);
+                    setPhaseStates([ship1.phase, ship2.phase]);
                 }
 
-                //update speed display
-                if(timeSinceUpdate >= 0.2) {
-                    setSpeedState([ship1.speed, ship2.speed]);
+                //update display
+                if (timeSinceUpdate >= 0.2) {
+                    setSpeedStates([ship1.speed, ship2.speed]);
                     timeSinceUpdate = 0;
-                    console.log(ship1.accel);
+                    if (ship1.phase != phaseStates[0] || ship2.phase != phaseStates[1]) {
+                        setPhaseStates([ship1.phase, ship2.phase]);
+                    }
                 }
                 else {
                     timeSinceUpdate += delta;
@@ -65,7 +72,7 @@ export default function RaceLogic({raceState, setRaceState, ship1Ref, ship2Ref, 
                 ship2.accel = (+ship2.driveStats.stage1);
                 ship2.speed = 0;
                 moveSpeed = 0;
-                setSpeedState([ship1.speed, ship2.speed]);
+                setSpeedStates([ship1.speed, ship2.speed]);
             }
         }
     });
@@ -84,27 +91,34 @@ const raceCalc = (ship: ShipContainer, dest: Vector3, shipRef: RefObject<Mesh>, 
         ship.forwardVec = tempVec.clone();
         ship.firstCalc = false;
     }
-    else if (ship.forwardVec.angleTo(tempVec) >= 1) {
+    else if (ship.elapsedTime >= ship.totalTime) {
         shipRef.current.position.x = dest.x;
         shipRef.current.position.y = dest.y;
         shipRef.current.position.z = dest.z;
+        ship.speed = 0;
 
         ship.moving = false;
         ship.firstCalc = true;
-        console.log(ship.elapsedTime);
+        ship.phase = "Complete"
     }
     else {
         if (ship.elapsedTime > ship.totalTime - ship.accelTime) {
             ship.accel -= (ship.accelRate * delta * simRate);
             ship.speed -= (ship.accel * delta * simRate);
+
+            ship.phase = "Decelerating"
         }
         else if (ship.speed < ship.driveStats.speed) {
             ship.accel += (ship.accelRate * delta * simRate);
             ship.speed += (ship.accel * delta * simRate);
+
+            ship.phase = "Accelerating"
         }
         else {
             ship.accel = ship.driveStats.stage2;
             ship.speed = ship.driveStats.speed;
+
+            ship.phase = "Cruising";
         }
 
         moveSpeed = ship.speed * delta * simRate;
@@ -145,7 +159,8 @@ export const raceInit = (newShip1: Ship, newShip2: Ship, newDrive1: Drive, newDr
         forwardVec: new Vector3(0,0,0),
         totalTime: totalTime,
         elapsedTime: 0,
-        firstCalc: true
+        firstCalc: true,
+        phase: "Accelerating"
     };
 
     accelLength = 2 * newDrive2.speed / ((+newDrive2.stage1) + (+newDrive2.stage2));
@@ -166,6 +181,7 @@ export const raceInit = (newShip1: Ship, newShip2: Ship, newDrive1: Drive, newDr
         forwardVec: new Vector3(0,0,0),
         totalTime: totalTime,
         elapsedTime: 0,
-        firstCalc: true
+        firstCalc: true,
+        phase: "Accelerating"
     };
 }
