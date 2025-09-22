@@ -66,16 +66,18 @@ export default function RaceLogic({raceState, setRaceState, ship1Ref, ship2Ref, 
                     timeSinceUpdate += delta;
                 }
             }
-            if (raceState === raceStatus.stopped) {
-                ship1.accel = (+ship1.driveStats.stage1);
-                ship1.speed = 0;
-                ship2.accel = (+ship2.driveStats.stage1);
-                ship2.speed = 0;
-                moveSpeed = 0;
-                setSpeedStates([ship1.speed, ship2.speed]);
-            }
         }
     });
+
+    if (ship1 && ship2) {
+        if (raceState === raceStatus.stopped) {
+            ship1.accel = (+ship1.driveStats.stage1);
+            ship1.speed = 0;
+            ship2.accel = (+ship2.driveStats.stage1);
+            ship2.speed = 0;
+            moveSpeed = 0;
+        }
+    }
 
     return (
         <></>
