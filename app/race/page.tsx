@@ -161,8 +161,8 @@ export default function Race() {
                                         if (ship1 && ship2 && drive1 && drive2 && raceState == raceStatus.stopped)
                                             raceInit(ship1, ship2, drive1, drive2, locations[dest], shipObj1, shipObj2);
                                     }}
-                                            className={"text-white rounded-r-none bg-green-500 hover:text-white hover:bg-green-600"}>
-                                        <Play/>
+                                            className={"rounded-r-none bg-green-500 hover:bg-green-600"}>
+                                        <Play color="#ffffff"/>
                                     </Button>
                                     :
                                     <Button onClick={() => setRaceState(raceStatus.paused)}
@@ -172,8 +172,8 @@ export default function Race() {
                                     </Button>
                             }
                             <Button onClick={handleRaceReset} disabled={!Boolean(raceState)}
-                                    className={"text-white rounded-l-none bg-red-500 hover:text-white hover:bg-red-600"}>
-                                <RotateCcw/>
+                                    className={"rounded-l-none bg-red-500 hover:bg-red-600"}>
+                                <RotateCcw color="#ffffff"/>
                             </Button>
                         </div>
                         <div className={"flex flex-nowrap"}>

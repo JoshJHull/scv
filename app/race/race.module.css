@@ -13,7 +13,7 @@
     left: 0;
     background-color: #FFFFFF;
     transform-origin: bottom right;
-    transition: transform 0.25s ease-out;
+    transition: transform 0.2s ease-out;
 }
 
 .underline:hover::after {
