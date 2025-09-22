@@ -8,7 +8,7 @@ import {Button} from "@/components/ui/button";
 import ShipsCombo from "@/components/ui/race/ships-combo";
 import DrivesCombo from "@/components/ui/race/drives-combo";
 import LocCombo from "@/components/ui/race/loc-combo";
-import {ArrowRight, Gauge, Pause, Play, RotateCcw} from "lucide-react";
+import {ArrowLeft, ArrowRight, Gauge, Pause, Play, RotateCcw} from "lucide-react";
 import {Switch} from "@/components/ui/switch";
 import {Label} from "@/components/ui/label";
 import clsx from "clsx";
@@ -18,6 +18,8 @@ import {getCachedDrives, getCachedShips} from "@/lib/db";
 import {Drive, Nullable, raceStatus, Ship} from "@/lib/definitions";
 import RaceLogic, {raceInit} from "@/components/race-logic";
 import {AnimatePresence, motion} from "motion/react"
+import Link from "next/link";
+import styles from "./race.module.css";
 
 //const MotionButton = motion.create(Button);
 
@@ -131,9 +133,16 @@ export default function Race() {
 
             </div>
 
-            <div className={"absolute flex w-full pt-5 pr-10 justify-end"}>
+            <div className={"absolute flex w-full pt-5 pr-10 pl-10 text-white"}>
+                <Link href={"/"} className={styles.underline}>
+                    <div className={"flex space-x-1 items-center"}>
+                        <ArrowLeft size={16}/>
+                        <p>Back</p>
+                    </div>
+                </Link>
+                <div className={"grow"}></div>
                 <div className={"flex items-center space-x-2 justify-end"}>
-                    <Label className={"text-white"}>Location Names</Label>
+                    <Label>Location Names</Label>
                     <Switch checked={nameVis} onCheckedChange={() => setNameVis(!nameVis)} />
                 </div>
             </div>

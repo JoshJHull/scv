@@ -3,7 +3,7 @@ import "./globals.css";
 import {gabarito} from "@/components/ui/fonts";
 
 export const metadata: Metadata = {
-  title: "SCVisualised",
+  title: "SC Visualised",
   description: "Visualise Star Citizen game stats.",
 };
 
