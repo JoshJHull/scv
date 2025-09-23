@@ -4,14 +4,14 @@
 }
 
 .underline::after {
-    content: '';
+    content: "";
     position: absolute;
     width: 100%;
     transform: scaleX(0);
     height: 2px;
     bottom: 0;
     left: 0;
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     transform-origin: bottom right;
     transition: transform 0.2s ease-out;
 }

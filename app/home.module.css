@@ -5,14 +5,14 @@
 }
 
 .underline::after {
-    content: '';
+    content: "";
     position: absolute;
     width: 100%;
     transform: scaleX(0);
     height: 3px;
     bottom: 0;
     left: 0;
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     transform-origin: bottom right;
     transition: transform 0.5s ease-out;
 }
@@ -32,8 +32,17 @@
 
     --border-angle: 0turn;
 
-    background: conic-gradient(from var(--border-angle), transparent 25%, var(--color1), var(--color2) 99%, transparent) border-box;
-    transition: --color1 0.5s linear, --color2 0.5s linear;
+    background: conic-gradient(
+            from var(--border-angle),
+            transparent 25%,
+            var(--color1),
+            var(--color2) 99%,
+            transparent
+        )
+        border-box;
+    transition:
+        --color1 0.5s linear,
+        --color2 0.5s linear;
     animation: bg-spin 15s linear infinite;
     animation-play-state: paused;
 
@@ -44,11 +53,10 @@
     }
 
     &:hover .underline::after {
-         transform: scaleX(1);
-         transform-origin: bottom left;
-     }
+        transform: scaleX(1);
+        transform-origin: bottom left;
+    }
 }
-
 
 @keyframes bg-spin {
     to {
@@ -63,13 +71,13 @@
 }
 
 @property --color1 {
-    syntax: '<color>';
+    syntax: "<color>";
     initial-value: transparent;
     inherits: false;
 }
 
 @property --color2 {
-    syntax: '<color>';
+    syntax: "<color>";
     initial-value: transparent;
     inherits: false;
 }
