@@ -1,7 +1,7 @@
 .underline {
     display: inline-block;
     position: relative;
-    font-size: 1.5em;
+    font-size: 2em;
 }
 
 .underline::after {
@@ -13,14 +13,10 @@
     bottom: 0;
     left: 0;
     background-color: #ffffff;
-    transform-origin: bottom right;
-    transition: transform 0.5s ease-out;
+    transform-origin: bottom left;
+    transition: transform 0.4s ease-out;
 }
 
-.underline:hover::after {
-    transform: scaleX(1);
-    transform-origin: bottom left;
-}
 
 .border {
     position: relative;

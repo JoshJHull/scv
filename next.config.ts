@@ -12,7 +12,6 @@ const nextConfig: NextConfig = {
     },
 
     devIndicators: false,
-    typedRoutes: true,
 
     turbopack: {
         rules: {
