@@ -1,9 +1,9 @@
 "use client";
 
 import {Canvas} from "@react-three/fiber";
-import {OrbitControls, Stars} from "@react-three/drei";
+import { OrbitControls, Stars } from "@react-three/drei";
 import {useEffect, useRef, useState} from "react";
-import {Mesh} from "three";
+import { Mesh, Vector3 } from "three";
 import {Button} from "@/components/ui/button";
 import ShipsCombo from "@/components/ui/race/ships-combo";
 import DrivesCombo from "@/components/ui/race/drives-combo";
@@ -20,11 +20,20 @@ import RaceLogic, {raceInit} from "@/components/race-logic";
 import {AnimatePresence, motion} from "motion/react"
 import Link from "next/link";
 import styles from "./race.module.css";
+import RouteLines from "@/components/route-lines";
 
 //const MotionButton = motion.create(Button);
 
-//const degToRad = (deg: number) => (deg * Math.PI) / 180;
+const degToRad = (deg: number) => (deg * Math.PI) / 180;
 
+const shipTarget = function (ship: number, location: Vector3): Vector3 {
+    if(ship == 1)
+        return new Vector3(location.x - 0.75, location.y + 1.5, location.z);
+    return new Vector3(location.x + 0.75, location.y + 1.5, location.z);
+}
+
+const linePoints1 = [shipTarget(1, locations["microtech"]), shipTarget(1, locations["hurston"])];
+const linePoints2 = [shipTarget(2, locations["microtech"]), shipTarget(2, locations["hurston"])];
 
 let shipList: Ship[] = [];
 let driveList: Drive[] = [];
@@ -90,10 +99,16 @@ export default function Race() {
         shipObj2.current.position.x = locations[locID].x + 0.75;
         shipObj2.current.position.y = 1.5;
         shipObj2.current.position.z = locations[locID].z;
+
+        linePoints1[0] = shipTarget(1, locations[locID]);
+        linePoints2[0] = shipTarget(2, locations[locID]);
     }
 
     const handleRaceDest = (locID: string) => {
         setDest(locID);
+
+        linePoints1[1] = shipTarget(1, locations[locID]);
+        linePoints2[1] = shipTarget(2, locations[locID]);
     }
 
     const handleShip1 = (ship: Nullable<Ship>) => {
@@ -119,17 +134,18 @@ export default function Race() {
     return (
         <>
             <div className={"grow bg-gray-950 overflow-hidden min-w-0 min-h-0"}>
-                <Canvas camera={{fov: 60, position:[0,90,0]}}>
+                <Canvas camera={{fov: 60, position:[0,70,0]}}>
                     <Objects ship1={shipObj1} ship2={shipObj2} nameVis={nameVis}/>
+                    <RouteLines linePoints1={linePoints1} linePoints2={linePoints2}/>
                     <Stars fade speed={0} />
                     <RaceLogic raceState={raceState} setRaceState={setRaceState} ship1Ref={shipObj1} ship2Ref={shipObj2}
                                dest={locations[dest]} setSpeedStates={setSpeedStates} phaseStates={phaseStates} setPhaseStates={setPhaseStates}
                                simRate={simRate}/>
-                    <OrbitControls/>
+                    <OrbitControls maxPolarAngle={degToRad(90)} minPolarAngle={degToRad(20)}/>
                 </Canvas>
             </div>
 
-            <div className={"absolute w-full h-20 top-0 bottom-auto bg-gradient-to-b from-gray-900 from-20%"}>
+            <div className={"absolute w-full h-20 top-0 bottom-auto bg-gradient-to-b from-[#171738] from-5%"}>
 
             </div>
 
@@ -149,7 +165,7 @@ export default function Race() {
 
             <div className={"absolute w-full h-auto top-auto bottom-0"}>
 
-                <div className={"flex flex-row justify-center items-center space-x-8 p-3 bg-gradient-to-t from-indigo-950"}>
+                <div className={"flex flex-row justify-center items-center space-x-8 p-3 bg-gradient-to-t from-[#171738]"}>
 
                     <div className={"flex justify-center items-center space-x-3"}>
                         <div className={"flex flex-nowrap"}>
