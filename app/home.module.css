@@ -23,7 +23,7 @@
     overflow: hidden;
     display: flex;
 
-    border: solid 1px transparent;
+    border: solid 2px transparent;
     border-radius: 1em;
 
     --border-angle: 0turn;
@@ -44,8 +44,8 @@
 
     &:hover {
         animation-play-state: running;
-        --color1: #48cae4;
-        --color2: #caf0f8;
+        --color1: #ADB5BD;
+        --color2: #F8F9FA;
     }
 
     &:hover .underline::after {

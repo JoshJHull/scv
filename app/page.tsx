@@ -4,13 +4,13 @@ import RaceImage from "../public/home/race.jpg";
 import StatsImage from "../public/home/stats.jpg";
 import styles from "./home.module.css";
 import Link from "next/link";
-import PointBackground from "@/components/point-background";
+import HomeScene from "@/components/home-scene";
 
 export default function Home() {
     return (
         <>
             <div className={"grow bg-black"}>
-                <PointBackground/>
+                <HomeScene/>
             </div>
 
             <div
@@ -19,10 +19,7 @@ export default function Home() {
                 }
             >
                 <div className={"flex flex-col"}>
-                    <h1>
-                        SC Visualised
-                    </h1>
-                    <div className={"flex flex-col max-w-[800] min-w-[800] pt-[100] space-y-28"}>
+                    <div className={"flex flex-col max-w-[800] min-w-[800] pt-[200] space-y-20"}>
                         <Link href={"/race"}>
                             <motion.div
                                 className={styles.border}

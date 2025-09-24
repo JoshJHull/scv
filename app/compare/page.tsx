@@ -1,13 +1,11 @@
-import PointBackground from "@/components/point-background";
+import GradientBackground from "@/components/gradient-background";
 
 export default function Compare() {
     return (
         <>
             <div className={"w-full bg-blue-950"}>
-                <PointBackground/>
+                <GradientBackground/>
             </div>
-
         </>
-
     )
 }

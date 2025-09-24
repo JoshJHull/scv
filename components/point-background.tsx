@@ -21,31 +21,23 @@ for (let ix = 0; ix < NUMX; ix++) {
     }
 }
 
-const Background = (() => {
+export default function PointBackground() {
     const pointShader = useRef<PointsMaterial>(null!);
 
     useFrame(({clock}) => {
         i = 0;
         for (let ix = 0; ix < NUMX; ix++) {
             for (let iz = 0; iz < NUMZ; iz++) {
-                positions[i+1] = (Math.sin((ix + clock.elapsedTime * 1.5) / 10)) +
-                    (Math.sin((iz + clock.elapsedTime * 1.5) / 10));
+                positions[i+1] = (Math.sin((ix + clock.elapsedTime * 2) / 10)) +
+                    (Math.sin((iz + clock.elapsedTime * 2) / 10));
                 i += 3;
             }
         }
     })
 
     return (
-            <Points positions={positions}>
-                <PointMaterial ref={pointShader} size={0.6} color={"white"} transparent opacity={0.1}/>
-            </Points>
-    )
-})
-
-export default function PointBackground() {
-    return (
-        <Canvas camera={{fov:40, position:[10,40,30]}}>
-            <Background/>
-        </Canvas>
+        <Points positions={positions}>
+            <PointMaterial ref={pointShader} size={0.6} color={"white"} transparent opacity={0.1}/>
+        </Points>
     )
 }
