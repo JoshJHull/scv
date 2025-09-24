@@ -5,11 +5,12 @@ import StatsImage from "../public/home/stats.jpg";
 import styles from "./home.module.css";
 import Link from "next/link";
 import GradientBackground from "@/components/gradient-background";
+import PointBackground from "@/components/point-background";
 
 export default function Home() {
     return (
         <>
-            <GradientBackground/>
+            <PointBackground/>
             <div
                 className={
                     "flex absolute w-full justify-center text-white"

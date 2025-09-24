@@ -1,5 +1,13 @@
+import PointBackground from "@/components/point-background";
+
 export default function Compare() {
     return (
-        <p>Ship Compare</p>
+        <>
+            <div className={"w-full bg-blue-950"}>
+                <PointBackground/>
+            </div>
+
+        </>
+
     )
 }
