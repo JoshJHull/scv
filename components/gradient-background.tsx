@@ -1,13 +1,13 @@
 "use client";
 
 import { Canvas, extend, ThreeElement, useFrame} from "@react-three/fiber";
-import {Preload, ScreenQuad, shaderMaterial } from "@react-three/drei";
+import { ScreenQuad, shaderMaterial } from "@react-three/drei";
 import { ShaderMaterial, Vector3 } from "three";
 import { COSINE_GRADIENTS } from "@thi.ng/color";
 
 import vertex from "./shaders/gradient_background.vert";
 import fragment from "./shaders/gradient_background.frag";
-import {Suspense, useRef} from "react";
+import {useRef} from "react";
 
 // const colourPalette = COSINE_GRADIENTS["cyan-magenta"].map(
 //     (color) => new Vector3(...color),
