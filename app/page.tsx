@@ -4,13 +4,15 @@ import RaceImage from "../public/home/race.jpg";
 import StatsImage from "../public/home/stats.jpg";
 import styles from "./home.module.css";
 import Link from "next/link";
+import GradientBackground from "@/components/gradient-background";
 
 export default function Home() {
     return (
         <>
+            <GradientBackground/>
             <div
                 className={
-                    "flex w-full justify-center text-white bg-gradient-to-t from-[#171738] to-black"
+                    "flex absolute w-full justify-center text-white"
                 }
             >
                 <div className={"flex flex-col"}>

@@ -37,8 +37,8 @@
         )
         border-box;
     transition:
-        --color1 0.5s linear,
-        --color2 0.5s linear;
+        --color1 0.4s linear,
+        --color2 0.4s linear;
     animation: bg-spin 15s linear infinite;
     animation-play-state: paused;
 
