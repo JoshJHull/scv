@@ -4,13 +4,15 @@ import RaceImage from "../public/home/race.jpg";
 import StatsImage from "../public/home/stats.jpg";
 import styles from "./home.module.css";
 import Link from "next/link";
-import GradientBackground from "@/components/gradient-background";
 import PointBackground from "@/components/point-background";
 
 export default function Home() {
     return (
         <>
-            <PointBackground/>
+            <div className={"grow bg-black"}>
+                <PointBackground/>
+            </div>
+
             <div
                 className={
                     "flex absolute w-full justify-center text-white"
@@ -26,7 +28,7 @@ export default function Home() {
                                 className={styles.border}
                                 whileHover={{ scale: 1.03 }}
                             >
-                                <div className={"flex bg-[#171738]"}>
+                                <div className={"flex bg-[#212529]"}>
                                     <div className={"w-1/2"}>
                                         <Image
                                             src={RaceImage}
@@ -54,7 +56,7 @@ export default function Home() {
                                 className={styles.border}
                                 whileHover={{ scale: 1.03 }}
                             >
-                                <div className={"flex bg-[#171738]"}>
+                                <div className={"flex bg-[#212529]"}>
                                     <div className={"w-1/2"}>
                                         <Image
                                             src={StatsImage}
