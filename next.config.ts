@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
             },
             {
                 test: /\.(glsl|vs|fs|vert|frag)$/,
-                type: "asset/source",
+                use: "glslify-loader",
             },
         );
 
