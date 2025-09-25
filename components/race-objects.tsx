@@ -1,5 +1,5 @@
 import {RefObject, useMemo} from "react";
-import {EllipseCurve, Mesh, Vector3} from "three";
+import { EllipseCurve, Mesh, SphereGeometry, Vector3 } from "three";
 import {Html, Line} from "@react-three/drei";
 import {locations} from "@/components/locations";
 
@@ -25,6 +25,8 @@ export const Objects = ({ship1, ship2, nameVis}:
         return new EllipseCurve(0,0, 19.148,19.148, 0,2 * Math.PI, false, 0).getPoints(150).map((point) =>
             new Vector3(point.x, 0, point.y))
     }, []);
+    
+    const sphere = new SphereGeometry(1, 64, 32);
 
     return (
         <>
@@ -35,8 +37,7 @@ export const Objects = ({ship1, ship2, nameVis}:
                 <meshStandardMaterial emissive={0xffea6e} />
             </mesh>
             <Line points={microtechOrbit} color={0xffffff} lineWidth={0.5} opacity={0.5} transparent={true} />
-            <mesh position={locations.microtech} >
-                <sphereGeometry args={[1, 64, 32]} />
+            <mesh geometry={sphere} position={locations.microtech} >
                 <meshStandardMaterial color={0xb3ccf5} />
                 {nameVis &&
                     <Html>
@@ -45,8 +46,7 @@ export const Objects = ({ship1, ship2, nameVis}:
                 }
             </mesh>
             <Line points={hurstonOrbit} color={0xffffff} lineWidth={0.5} opacity={0.5} transparent={true} />
-            <mesh position={locations.hurston} >
-                <sphereGeometry args={[1, 64, 32]} />
+            <mesh geometry={sphere} position={locations.hurston} >
                 <meshStandardMaterial color={0xeb8334} />
                 {nameVis &&
                     <Html>
@@ -55,8 +55,7 @@ export const Objects = ({ship1, ship2, nameVis}:
                 }
             </mesh>
             <Line points={arccorpOrbit} color={0xffffff} lineWidth={0.5} opacity={0.5} transparent={true} />
-            <mesh position={locations.arccorp} >
-                <sphereGeometry args={[1, 64, 32]} />
+            <mesh geometry={sphere} position={locations.arccorp} >
                 <meshStandardMaterial color={0x9aa0b5} />
                 {nameVis &&
                     <Html>
@@ -65,8 +64,7 @@ export const Objects = ({ship1, ship2, nameVis}:
                 }
             </mesh>
             <Line points={crusaderOrbit} color={0xffffff} lineWidth={0.5} opacity={0.5} transparent={true} />
-            <mesh position={locations.crusader} >
-                <sphereGeometry args={[1, 64, 32]} />
+            <mesh geometry={sphere} position={locations.crusader} >
                 <meshStandardMaterial color={0xf5bae3} />
                 {nameVis &&
                     <Html>

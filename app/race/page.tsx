@@ -1,8 +1,8 @@
 "use client";
 
 import {Canvas} from "@react-three/fiber";
-import { OrbitControls, Stars } from "@react-three/drei";
-import {useEffect, useRef, useState} from "react";
+import {OrbitControls, Stars } from "@react-three/drei";
+import {Suspense, useEffect, useRef, useState} from "react";
 import { Mesh, Vector3 } from "three";
 import {Button} from "@/components/ui/button";
 import ShipsCombo from "@/components/ui/race/ships-combo";
@@ -21,6 +21,7 @@ import {AnimatePresence, motion} from "motion/react"
 import Link from "next/link";
 import styles from "./race.module.css";
 import RouteLines from "@/components/route-lines";
+import EnterAnim from "@/components/ui/race/enter-anim";
 
 //const MotionButton = motion.create(Button);
 
@@ -133,21 +134,21 @@ export default function Race() {
 
     return (
         <>
+            <EnterAnim/>
             <div className={"grow bg-gray-950 overflow-hidden min-w-0 min-h-0"}>
-                <Canvas camera={{fov: 60, position:[0,70,0]}}>
-                    <Objects ship1={shipObj1} ship2={shipObj2} nameVis={nameVis}/>
-                    <RouteLines linePoints1={linePoints1} linePoints2={linePoints2}/>
-                    <Stars fade speed={0} />
-                    <RaceLogic raceState={raceState} setRaceState={setRaceState} ship1Ref={shipObj1} ship2Ref={shipObj2}
-                               dest={locations[dest]} setSpeedStates={setSpeedStates} phaseStates={phaseStates} setPhaseStates={setPhaseStates}
-                               simRate={simRate}/>
-                    <OrbitControls maxPolarAngle={degToRad(90)} minPolarAngle={degToRad(20)}/>
-                </Canvas>
+                <Suspense>
+                    <Canvas camera={{fov: 60, position:[0,70,0]}}>
+                        <Objects ship1={shipObj1} ship2={shipObj2} nameVis={nameVis}/>
+                        <RouteLines linePoints1={linePoints1} linePoints2={linePoints2}/>
+                        <RaceLogic raceState={raceState} setRaceState={setRaceState} ship1Ref={shipObj1} ship2Ref={shipObj2}
+                                   dest={locations[dest]} setSpeedStates={setSpeedStates} phaseStates={phaseStates} setPhaseStates={setPhaseStates}
+                                   simRate={simRate}/>
+                        <OrbitControls maxPolarAngle={degToRad(90)} minPolarAngle={degToRad(20)}/>
+                    </Canvas>
+                </Suspense>
             </div>
 
-            <div className={"absolute w-full h-20 top-0 bottom-auto bg-gradient-to-b from-[#171738] from-5%"}>
-
-            </div>
+            <div className={"absolute w-full h-20 top-0 bottom-auto bg-gradient-to-b from-[#171738] from-5%"}></div>
 
             <div className={"absolute flex w-full pt-5 pr-10 pl-10 text-white"}>
                 <Link href={"/"} className={styles.underline}>

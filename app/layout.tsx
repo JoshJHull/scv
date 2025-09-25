@@ -13,7 +13,9 @@ export default function RootLayout({children,}: Readonly<{children: React.ReactN
     <html lang="en" className={gabarito.className}>
     <body>
     <div className={"flex h-screen flex-col"}>
-        <div className={"flex grow overflow-hidden"}>{children}</div>
+        <div className={"flex grow overflow-hidden"}>
+            {children}
+        </div>
     </div>
     </body>
     </html>
