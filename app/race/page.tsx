@@ -1,7 +1,7 @@
 "use client";
 
 import {Canvas} from "@react-three/fiber";
-import {OrbitControls, Stars } from "@react-three/drei";
+import {OrbitControls} from "@react-three/drei";
 import {Suspense, useEffect, useRef, useState} from "react";
 import { Mesh, Vector3 } from "three";
 import {Button} from "@/components/ui/button";
@@ -52,6 +52,9 @@ export default function Race() {
     const [drive2, setDrive2] = useState<Nullable<Drive>>();
     const [origin, setOrigin] = useState("microtech");
     const [dest, setDest] = useState("hurston");
+
+    const [route1, setRoute1] = useState<string[]>(["microtech"]);
+    const [route2, setRoute2] = useState<string[]>(["microtech"]);
 
     const [speedStates, setSpeedStates] = useState<number[]>([0,0]);
     const [phaseStates, setPhaseStates] = useState<string[]>(["Accelerating", "Accelerating"]);
