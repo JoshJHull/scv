@@ -1,28 +1,42 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+    /* config options here */
     webpack(config) {
-        config.module.rules.push({
-            test: /\.svg$/i,
-            use: ["@svgr/webpack"],
-        });
+        config.module.rules.push(
+            {
+                test: /\.svg$/i,
+                use: ["@svgr/webpack"],
+            },
+            {
+                test: /\.(glsl|vs|fs|vert|frag)$/,
+                use: "glslify-loader",
+            },
+        );
 
         return config;
     },
 
-    experimental: {
-        turbo: {
-            rules: {
-                '*.svg': {
-                    loaders: ['@svgr/webpack'],
-                    as: '*.js'
-                }
+    devIndicators: false,
+
+    turbopack: {
+        rules: {
+            "*.svg": {
+                loaders: ["@svgr/webpack"],
+                as: "*.js",
             },
-        }
+            "*.vert": {
+                loaders: ["raw-loader", "glslify-loader"],
+                as: "*.js",
+            },
+            "*.frag": {
+                loaders: ["raw-loader", "glslify-loader"],
+                as: "*.js",
+            },
+        },
     },
 
-    transpilePackages: ['three'],
+    transpilePackages: ["three"],
 };
 
 module.exports = nextConfig;

@@ -1,24 +1,15 @@
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Button} from "@/components/ui/button";
-import {Check, ChevronsUpDown} from "lucide-react";
+import {Check, ChevronDown, ChevronUp} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {cn} from "@/lib/utils";
 import {Dispatch, SetStateAction, useState} from "react";
+import {Drive, Nullable} from "@/lib/definitions";
 
 
-export default function DrivesCombo({value, setValue, disabled}: {value: string, setValue: Dispatch<SetStateAction<string>>, disabled: boolean}) {
+export default function DrivesCombo({value, setValue, driveList, disabled}:
+    {value: Nullable<Drive>, setValue: Dispatch<SetStateAction<Nullable<Drive>>>, driveList: Drive[], disabled: boolean}) {
     const [open, setOpen] = useState(false);
-
-    const drives = [
-        {
-            value: "sparkfire",
-            label: "Sparkfire",
-        },
-        {
-            value: "torrent",
-            label: "Torrent",
-        },
-    ]
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -30,9 +21,11 @@ export default function DrivesCombo({value, setValue, disabled}: {value: string,
                     className="w-[200px] justify-between"
                 >
                     {value
-                        ? drives.find((drive) => drive.value === value)?.label
+                        ? driveList.find((drive) => drive.id === value.id)?.name
                         : "Select drive..."}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    {open
+                        ? <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
+                        : <ChevronUp className="ml-2 h-4 w-4 shrink-0 opacity-50"/>}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
@@ -41,22 +34,23 @@ export default function DrivesCombo({value, setValue, disabled}: {value: string,
                     <CommandList>
                         <CommandEmpty>No ships found.</CommandEmpty>
                         <CommandGroup>
-                            {drives.map((drive) => (
+                            {driveList.map((drive) => (
                                 <CommandItem
-                                    key={drive.value}
-                                    value={drive.value}
+                                    key={drive.id}
+                                    value={drive.id}
                                     onSelect={(currentValue) => {
-                                        setValue(currentValue === value ? "" : currentValue)
+                                        if(currentValue != value?.id)
+                                            setValue(drive)
                                         setOpen(false)
                                     }}
                                 >
                                     <Check
                                         className={cn(
                                             "mr-2 h-4 w-4",
-                                            value === drive.value ? "opacity-100" : "opacity-0"
+                                            value?.id === drive.id ? "opacity-100" : "opacity-0"
                                         )}
                                     />
-                                    {drive.label}
+                                    {drive.name}
                                 </CommandItem>
                             ))}
                         </CommandGroup>

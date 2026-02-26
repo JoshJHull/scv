@@ -1,0 +1,79 @@
+.underline {
+    display: inline-block;
+    position: relative;
+    font-size: 2em;
+}
+
+.underline::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 3px;
+    bottom: 0;
+    left: 0;
+    background-color: #ffffff;
+    transform-origin: bottom left;
+    transition: transform 0.4s ease-out;
+}
+
+
+.border {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+
+    border: solid 2px transparent;
+    border-radius: 1em;
+
+    --border-angle: 0turn;
+
+    background: conic-gradient(
+            from var(--border-angle),
+            transparent 25%,
+            var(--color1),
+            var(--color2) 99%,
+            transparent
+        )
+        border-box;
+    transition:
+        --color1 0.4s linear,
+        --color2 0.4s linear;
+    animation: bg-spin 15s linear infinite;
+    animation-play-state: paused;
+
+    &:hover {
+        animation-play-state: running;
+        --color1: #ADB5BD;
+        --color2: #F8F9FA;
+    }
+
+    &:hover .underline::after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+    }
+}
+
+@keyframes bg-spin {
+    to {
+        --border-angle: 1turn;
+    }
+}
+
+@property --border-angle {
+    syntax: "<angle>";
+    inherits: true;
+    initial-value: 0turn;
+}
+
+@property --color1 {
+    syntax: "<color>";
+    initial-value: transparent;
+    inherits: false;
+}
+
+@property --color2 {
+    syntax: "<color>";
+    initial-value: transparent;
+    inherits: false;
+}

@@ -1,24 +1,16 @@
-import {Dispatch, SetStateAction, useState} from "react";
+import {useState} from "react";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Button} from "@/components/ui/button";
-import {Check, ChevronsUpDown} from "lucide-react";
+import {Check, ChevronDown, ChevronUp} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {cn} from "@/lib/utils";
+import {Nullable, Ship} from "@/lib/definitions";
 
 
-export default function ShipsCombo({value, setValue, disabled}: {value: string, setValue: Dispatch<SetStateAction<string>>, disabled: boolean}) {
+export default function ShipsCombo({value, onChange, shipList, disabled}:
+    {value: Nullable<Ship>, onChange: (newShip: Nullable<Ship>) => void, shipList: Array<Ship>, disabled: boolean}) {
+
     const [open, setOpen] = useState(false);
-
-    const ships = [
-        {
-            value: "misc_starlancer_max",
-            label: "MISC Starlancer MAX",
-        },
-        {
-            value: "drake_corsair",
-            label: "Drake Corsair",
-        },
-    ]
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -30,10 +22,22 @@ export default function ShipsCombo({value, setValue, disabled}: {value: string, 
                     className="w-[200px] justify-between"
                 >
                     {value
-                        ? ships.find((ship) => ship.value === value)?.label
+                        ? shipList.find((ship) => ship.id === value.id)?.name
                         : "Select ship..."}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    {open
+                        ? <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
+                        : <ChevronUp className="ml-2 h-4 w-4 shrink-0 opacity-50"/>}
                 </Button>
+                {/*<svg width={"200"} height={"40"}>
+                    <path d="
+                        M 10 0
+                        L 200 0
+                        L 190 40
+                        L 0 40
+                        Z"
+                        stroke="#007BFF"
+                        fillOpacity="0"/>
+                </svg>*/}
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
                 <Command>
@@ -41,22 +45,23 @@ export default function ShipsCombo({value, setValue, disabled}: {value: string, 
                     <CommandList>
                         <CommandEmpty>No ships found.</CommandEmpty>
                         <CommandGroup>
-                            {ships.map((ship) => (
+                            {shipList.map((ship) => (
                                 <CommandItem
-                                    key={ship.value}
-                                    value={ship.value}
+                                    key={ship.id}
+                                    value={ship.id}
                                     onSelect={(currentValue) => {
-                                        setValue(currentValue === value ? "" : currentValue)
+                                        if(currentValue != value?.id)
+                                            onChange(ship)
                                         setOpen(false)
                                     }}
                                 >
                                     <Check
                                         className={cn(
                                             "mr-2 h-4 w-4",
-                                            value === ship.value ? "opacity-100" : "opacity-0"
+                                            value?.id === ship.id ? "opacity-100" : "opacity-0"
                                         )}
                                     />
-                                    {ship.label}
+                                    {ship.name}
                                 </CommandItem>
                             ))}
                         </CommandGroup>
